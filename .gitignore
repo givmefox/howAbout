@@ -1,0 +1,19 @@
+# Python 관련
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# 가상 환경
+venv/
+env/
+
+# Django static files
+staticfiles/
+
+# 환경 변수 파일
+.env
+
+# IDE 설정
+.idea/
+*.swp
+
