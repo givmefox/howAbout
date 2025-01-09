@@ -21,19 +21,17 @@
     <!-- Main Login Content -->
     <div class="centered-content">
         <form action="/Essency/loginControl" method="post" style="max-width: 400px; width: 100%; margin: auto;">
-            <div class="search-box">
+        <div class="input-group">
+            <div class="fields-container">
                 <input type="text" name="username" placeholder="Username" required>
-            </div>
-            <div class="search-box">
                 <input type="password" name="password" placeholder="Password" required>
             </div>
-            <div class="search-box">
-                <button type="submit">Login</button>
-            </div>
-            <div style="margin-top: 20px;">
-                <p>Don't have an account? <a href="/Essency/signup.jsp" style="color: #ff0000;">Sign up here</a></p>
-            </div>
-        </form>
+            <button type="submit">Login</button>
+        </div>
+        <div style="margin-top: 20px;">
+            <p>Don't have an account? <a href="/Essency/signup.jsp" style="color: #ff0000;">Sign up here</a></p>
+        </div>
+    </form>
     </div>
 
     <!-- Footer -->
