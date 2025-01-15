@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>키워드 랭킹</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            font-size: 16px;
+            table-layout: fixed;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        th {
+            background-color: #ff0000;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .hashtags {
+            max-height: 400px; /* 제한 높이 설정 */
+            overflow-y: auto; /* 세로 스크롤 활성화 */
+        }
+        .filter-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+        .filter-container select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 네비게이션 바 -->
+    <div class="navbar">
+        <div class="logo">
+            <h1>이거어때</h1>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="키워드 검색">
+            <button>검색</button>
+        </div>
+        <nav>
+            <a href="#">홈</a>
+            <a href="#">트렌드</a>
+            <a href="#">소개</a>
+        </nav>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="centered-content">
+        <h2 style="color: #ff0000;">🔥 유튜브 인기 키워드 랭킹 🔥</h2>
+
+        <!-- 필터 섹션 -->
+        <div class="filter-container">
+            <label for="category-filter">카테고리:</label>
+            <select id="category-filter" onchange="filterCategory()">
+                <option value="all">전체</option>
+                <option value="music">음악</option>
+                <option value="sports">스포츠</option>
+                <option value="movies">영화 및 애니메이션</option>
+                <option value="gaming">게임</option>
+                <option value="news">뉴스 및 정치</option>
+            </select>
+        </div>
+
+        <!-- 랭킹 섹션 -->
+        <div class="hashtags">
+            <table id="rankings-table">
+                <thead>
+                    <tr>
+                        <th>순위</th>
+                        <th>키워드</th>
+                        <th>카테고리</th>
+                        <th>인기도 점수</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-category="music">
+                        <td>1</td>
+                        <td>#뮤직히트</td>
+                        <td>음악</td>
+                        <td>98</td>
+                    </tr>
+                    <tr data-category="sports">
+                        <td>2</td>
+                        <td>#스포츠업데이트</td>
+                        <td>스포츠</td>
+                        <td>92</td>
+                    </tr>
+                    <tr data-category="movies">
+                        <td>3</td>
+                        <td>#영화예고편</td>
+                        <td>영화 및 애니메이션</td>
+                        <td>88</td>
+                    </tr>
+                    <tr data-category="gaming">
+                        <td>4</td>
+                        <td>#게임트렌드</td>
+                        <td>게임</td>
+                        <td>85</td>
+                    </tr>
+                    <tr data-category="news">
+                        <td>5</td>
+                        <td>#속보</td>
+                        <td>뉴스 및 정치</td>
+                        <td>83</td>
+                    </tr>
+                    <tr data-category="music">
+                        <td>6</td>
+                        <td>#팝히트</td>
+                        <td>음악</td>
+                        <td>81</td>
+                    </tr>
+                    <tr data-category="sports">
+                        <td>7</td>
+                        <td>#축구열기</td>
+                        <td>스포츠</td>
+                        <td>79</td>
+                    </tr>
+                    <tr data-category="movies">
+                        <td>8</td>
+                        <td>#애니메이션버즈</td>
+                        <td>영화 및 애니메이션</td>
+                        <td>76</td>
+                    </tr>
+                    <tr data-category="gaming">
+                        <td>9</td>
+                        <td>#이스포츠월드</td>
+                        <td>게임</td>
+                        <td>74</td>
+                    </tr>
+                    <tr data-category="news">
+                        <td>10</td>
+                        <td>#데일리정치</td>
+                        <td>뉴스 및 정치</td>
+                        <td>72</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 추천 섹션 -->
+        <div class="suggestions">
+            <h2>추천</h2>
+            <p>더 많은 내용을 탐색하거나 이 트렌드를 기반으로 콘텐츠를 만들어 보세요!</p>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <div class="footer">
+        <p>&copy; 2025 이거어때. 모든 권리 보유.</p>
+    </div>
+
+    <script>
+        function filterCategory() {
+            const filterValue = document.getElementById('category-filter').value;
+            const rows = document.querySelectorAll('#rankings-table tbody tr');
+            let rank = 1;
+
+            rows.forEach(row => {
+                if (filterValue === 'all' || row.dataset.category === filterValue) {
+                    row.style.display = '';
+                    row.querySelector('td').textContent = rank;
+                    rank++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
