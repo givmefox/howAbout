@@ -3,39 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이거어때</title>
-    <link rel="stylesheet" href="style.css">
+    <title>이거어때 - Vue.js</title>
+    <link rel="stylesheet" href="style.css"> <!-- 기존 CSS 유지 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script> <!-- Vue.js 추가 -->
+    <style>
+        /* 전체 화면 중앙 정렬 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* 화면 전체 높이 */
+            background-color: #f9f9f9; /* 배경색 */
+        }
+
+        /* 컨텐츠 감싸는 박스 */
+        .container {
+            width: 50%;
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 상단 헤더 */
+        .header {
+            background-color: red;
+            color: white;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0;
+        }
+
+        /* 검색창 */
+        .search-bar {
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        input {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+        button {
+            padding: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+            border-radius: 5px;
+        }
+
+        /* 해시태그를 가로로 배치 */
+        .hashtags {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* 화면이 작아질 때 자동 줄바꿈 */
+            gap: 10px; /* 태그 사이 간격 */
+        }
+        .hashtags p {
+            background-color: #eee;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 0;
+        }
+
+        /* 푸터 */
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 0 10px 10px;
+        }
+
+    </style>
 </head>
 <body>
-    <header class="navbar">
-        <div class="logo">
-            <h1>이거어때</h1>
-        </div>
-        <nav>
-            <a href="#">홈</a>
-            <a onclick="window.location.href='ranking.html'">랭킹</a>
-            <a href="#">구독</a>
-            <button onclick="window.location.href='login.html'">로그인</button>
-        </nav>
-    </header>
 
-    <main class="centered-content">
-        <h1>인기 있는 크리에이터가 되고 싶다면?</h1>
-        <div class="search-box">
-            <input type="text" placeholder="키워드 검색">
-            <button>🔍</button>
+    <div id="app" class="container">
+        <!-- 상단 헤더 -->
+        <div class="header">{{ title }}</div>
+
+        <!-- 검색창 -->
+        <div class="search-bar">
+            <input type="text" v-model="searchKeyword" placeholder="검색어를 입력하세요">
+            <button @click="search">🔍</button>
         </div>
+
+        <!-- 해시태그 (가로 정렬) -->
         <div class="hashtags">
-            <p>#온누리꾼 #강지훈 #문선곤 #박성일 #김홍성</p>
+            <p v-for="tag in hashtags" :key="tag">#{{ tag }}</p>
         </div>
-        <div class="suggestions">
-            <h2>추천 키워드</h2>
-            <p>#트렌드 #유행 #추천 #콘텐츠</p>
-        </div>
-    </main>
 
-    <footer class="footer">
-        <p>© 2025 이거어때 | choonsik＠tukorea.or.kr | 010-1234-5678</p>
-    </footer>
+        <!-- 하단 푸터 -->
+        <footer>
+            <p>{{ contact }}</p>
+        </footer>
+    </div>
+
+    <!-- Vue.js 코드 -->
+    <script>
+        new Vue({
+            el: "#app", // Vue를 적용할 요소 선택 (id="app")
+            data: {
+                title: "이거어때",
+                searchKeyword: "",
+                hashtags: ["온누리꾼", "강지훈", "문선곤", "박성일", "김홍성"],
+                contact: "choonsik＠tukorea.or.kr | 010-1234-5678"
+            },
+            methods: {
+                search() {
+                    alert(this.searchKeyword + "을(를) 검색합니다!");
+                }
+            }
+        });
+    </script>
+
 </body>
 </html>
