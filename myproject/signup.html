@@ -3,26 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원가입</title>
-    <link rel="stylesheet" href="signup-style.css"> <!-- CSS 연결 -->
+    <title>회원가입 - 이거어때</title>
+    <link rel="stylesheet" href="style.css"> <!-- 기존 CSS 유지 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script> <!-- Vue.js 추가 -->
+    <style>
+        /* 전체 화면 중앙 정렬 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* 화면 전체 높이 */
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            width: 40%;
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: red;
+            color: white;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .form-group {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px;
+            width: 100%;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .success {
+            color: green;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
-    <header class="navbar">
-        <h1>이거어때</h1>
-    </header>
 
-    <main class="signup-container">
-        <h2>회원가입</h2>
-        <form class="signup-form">
-            <input type="text" placeholder="이름" required>
-            <input type="email" placeholder="이메일" required>
-            <input type="password" placeholder="비밀번호" required>
-            <button type="submit">회원가입</button>
-        </form>
-    </main>
+    <div id="app" class="container">
+        <div class="header">회원가입</div>
 
-    <footer class="footer">
-        <p>© 2025 이거어때 | choonsik＠tukorea.or.kr | 010-1234-5678</p>
-    </footer>
+        <div class="form-group">
+            <label>이름</label>
+            <input type="text" v-model="name" placeholder="이름을 입력하세요">
+        </div>
+
+        <div class="form-group">
+            <label>이메일</label>
+            <input type="email" v-model="email" placeholder="이메일을 입력하세요">
+            <p class="error" v-if="!isValidEmail && email">올바른 이메일 형식을 입력하세요.</p>
+        </div>
+
+        <div class="form-group">
+            <label>비밀번호</label>
+            <input type="password" v-model="password" placeholder="비밀번호를 입력하세요">
+        </div>
+
+        <div class="form-group">
+            <label>비밀번호 확인</label>
+            <input type="password" v-model="confirmPassword" placeholder="비밀번호를 다시 입력하세요">
+            <p class="error" v-if="password && confirmPassword && password !== confirmPassword">비밀번호가 일치하지 않습니다.</p>
+        </div>
+
+        <p class="success" v-if="formValid">회원가입이 가능합니다!</p>
+        <p class="error" v-if="errorMessage">{{ errorMessage }}</p>
+
+        <button @click="signup">회원가입</button>
+    </div>
+
+    <script>
+        new Vue({
+            el: "#app",
+            data: {
+                name: "",
+                email: "",
+                password: "",
+                confirmPassword: "",
+                errorMessage: ""
+            },
+            computed: {
+                isValidEmail() {
+                    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email);
+                },
+                formValid() {
+                    return this.name && this.isValidEmail && this.password && this.confirmPassword && this.password === this.confirmPassword;
+                }
+            },
+            methods: {
+                signup() {
+                    if (!this.formValid) {
+                        this.errorMessage = "모든 필드를 올바르게 입력하세요!";
+                    } else {
+                        alert(this.name + "님, 회원가입이 완료되었습니다!");
+                        this.errorMessage = ""; // 에러 메시지 초기화
+                    }
+                }
+            }
+        });
+    </script>
+
 </body>
 </html>
