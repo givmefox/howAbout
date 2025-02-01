@@ -1,44 +1,92 @@
-const repository = require('./repository');
-const crypto = require('crypto');
-const jwt = require('./jwt');
+const repository = require("./repository");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+
+require("dotenv").config(); // 환경 변수를 로드합니다.
 
 // 회원가입
 exports.register = async (req, res) => {
-    const { id, username, password } = req.body;
+  const { userid, username, password } = req.body;
 
-    let {count} = await repository.checkId(id);
+  try {
+    let { count } = await repository.checkId(userid);
 
-    //아이디 중복 확인
-    if(count > 0) {
-        return res.json({ result: 'fail', message: '이미 존재하는 아이디 입니다.' });
+    // 아이디 중복 확인
+    if (count > 0) {
+      return res.json({
+        result: "fail",
+        message: "이미 존재하는 아이디 입니다.",
+      });
     }
 
-    //비밀번호 암호화
-    const result = await crypto.pbkdf2Sync(password, process.env.SALT_KEY, 50, 100, 'sha512');
+    // 비밀번호 암호화
+    const salt = process.env.SALT_KEY;
+    if (!salt) {
+      throw new Error("SALT_KEY 환경 변수가 설정되지 않았습니다.");
+    }
 
-    //회원가입 
-    const {affectedRows, insertId} = await repository.register(id, username, result.toString('base64'));
+    const hashedPassword = await new Promise((resolve, reject) => {
+      crypto.pbkdf2(password, salt, 50, 100, "sha512", (err, derivedKey) => {
+        if (err) reject(err);
+        resolve(derivedKey.toString("base64"));
+      });
+    });
 
-    if(affectedRows > 0) {
-        const  data = await jwt({id: insertId, username: username});
-        res.json({ result: 'ok', access_token: data });
+    // 회원가입
+    const { affectedRows, insertId } = await repository.register(
+      userid,
+      username,
+      hashedPassword
+    );
+
+    if (affectedRows > 0) {
+      const token = jwt.sign(
+        { userid: insertId, username: username },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
+      res.status(201).json({ result: "ok", access_token: token });
     } else {
-        res.json({ result: 'fail', message: '회원가입 실패' });
+      res.status(500).json({ result: "fail", message: "회원가입 실패" });
     }
-}
-
+  } catch (error) {
+    res.status(500).json({ result: "fail", message: error.message });
+  }
+};
 
 // 로그인
 exports.login = async (req, res) => {
-    const { id, password } = req.body;
+  const { userid, password } = req.body;
 
-    const result = await crypto.pbkdf2Sync(password, process.env.SALT_KEY, 50, 100, 'sha512');
-    const item = await repository.login(id, result.toString('base64'));
+  try {
+    const salt = process.env.SALT_KEY;
+    const hashedPassword = await new Promise((resolve, reject) => {
+      crypto.pbkdf2(password, salt, 50, 100, "sha512", (err, derivedKey) => {
+        if (err) reject(err);
+        resolve(derivedKey.toString("base64"));
+      });
+    });
 
-    if (item === null) {
-        res.json({ result: 'fail', message: '아이디 또는 비밀번호가 일치하지 않습니다.' });
+    const user = await repository.login(userid, hashedPassword);
+
+    if (!user) {
+      res.status(401).json({
+        result: "fail",
+        message: "아이디 또는 비밀번호가 일치하지 않습니다.",
+      });
     } else {
-        const data = await jwt({id: item.id, username: item.username});
-        res.json({ result: 'ok', access_token: data });
+      const token = jwt.sign(
+        { userid: user.id, username: user.username },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
+      res.status(200).json({ result: "ok", access_token: token });
     }
-}
+  } catch (error) {
+    res.status(500).json({ result: "fail", message: error.message });
+  }
+};
