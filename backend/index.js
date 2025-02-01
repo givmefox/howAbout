@@ -1,26 +1,19 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
-const userRoutes = require('./routes/userRoutes');
-
-// Express 앱 생성
-
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
+const router = require('./src/router');
+const bodyParser = require('body-parser');
 
-// 미들웨어 설정
-app.use(cors());
-app.use(express.json()); // JSON 요청 처리
-app.use(express.urlencoded({ extended: true })); // URL 인코딩된 데이터 처리
+// JSON 형식의 데이터 처리
+app.use(bodyParser.json());
+// URL 인코딩 된 데이터 처리
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// 기본 라우트
-app.get('/', (req, res) => {
-  res.send('Backend Server is Running!');
+// 라우터를 애플리케이션에 등록
+app.use('/', router);
+
+// 서버 시작
+app.listen(port, () => {
+  console.log(`웹서버 구동중 ${port}`);
 });
-
-// 서버 실행
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
-});
-
-app.use('/users', userRoutes);
