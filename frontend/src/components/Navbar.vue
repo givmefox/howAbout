@@ -1,4 +1,14 @@
-z<template>
+<script setup>
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const goToRegister = () =>{
+    router.push("/register");
+};
+</script>
+
+<template>
         <nav class="navbar">
             <a href="#" class="logo">여기어때</a>
             <div>
@@ -23,12 +33,14 @@ z<template>
                 </div>
                 <p class="error" v-if="errorMessage">{{ errorMessage }}</p>
                 <button class="modal-btn" @click="login">로그인</button>
+                <button class="register-btn" @click="goToRegister(); isModalOpen = false">회원가입</button>
                 <button class="close-btn" @click="closeModal">닫기</button>
             </div>
         </div>
 </template>
     
 <script>
+
     export default {
         name: 'NavbarComponent',
         data() {
@@ -61,12 +73,12 @@ z<template>
                     this.errorMessage = "";
                     this.closeModal();
                 }
-            }
+            },
         }
     }
 </script>
     
-<style>
+<style scoped>
     .navbar{
         display: flex;
         background: #dd3333;
@@ -79,6 +91,7 @@ z<template>
         color:  #fff;
         text-decoration: none;
         padding: 1em;
+        margin-right: 13px;
     }
 
     .logo {
@@ -96,7 +109,7 @@ z<template>
         font-size: 16px;
         font-weight: bold;
         cursor: pointer;
-        border-radius: 5px;
+        border-radius: 10px;
     }
 
     .modal-overlay {
@@ -139,6 +152,17 @@ z<template>
         padding: 10px;
         width: 100%;
         background-color: red;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+
+    .register-btn {
+        padding: 10px;
+        width: 100%;
+        background-color: rgb(232, 66, 20);
         color: white;
         border: none;
         cursor: pointer;
