@@ -33,7 +33,7 @@ const goToRegister = () =>{
                 </div>
                 <p class="error" v-if="errorMessage">{{ errorMessage }}</p>
                 <button class="modal-btn" @click="login">로그인</button>
-                <button class="register-btn" @click="goToRegister">회원가입</button>
+                <button class="register-btn" @click="goToRegister(); isModalOpen = false">회원가입</button>
                 <button class="close-btn" @click="closeModal">닫기</button>
             </div>
         </div>
@@ -73,12 +73,12 @@ const goToRegister = () =>{
                     this.errorMessage = "";
                     this.closeModal();
                 }
-            }
+            },
         }
     }
 </script>
     
-<style>
+<style scoped>
     .navbar{
         display: flex;
         background: #dd3333;
@@ -91,6 +91,7 @@ const goToRegister = () =>{
         color:  #fff;
         text-decoration: none;
         padding: 1em;
+        margin-right: 13px;
     }
 
     .logo {
@@ -108,7 +109,7 @@ const goToRegister = () =>{
         font-size: 16px;
         font-weight: bold;
         cursor: pointer;
-        border-radius: 5px;
+        border-radius: 10px;
     }
 
     .modal-overlay {
