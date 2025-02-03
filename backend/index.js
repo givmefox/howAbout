@@ -1,9 +1,14 @@
 require('dotenv').config();
+const cors = require('cors'); 
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 const router = require('./src/router');
 const bodyParser = require('body-parser');
+
+
+app.use(cors());
+
 
 // JSON 형식의 데이터 처리
 app.use(bodyParser.json());

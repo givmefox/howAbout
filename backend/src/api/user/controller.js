@@ -47,7 +47,7 @@ exports.register = async (req, res) => {
           expiresIn: "1h",
         }
       );
-      res.status(201).json({ result: "ok", access_token: token });
+      res.status(201).json({ result: "ok", access_token: token, data: "success" });
     } else {
       res.status(500).json({ result: "fail", message: "회원가입 실패" });
     }
