@@ -1,4 +1,14 @@
-z<template>
+<script setup>
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const goToRegister = () =>{
+    router.push("/register");
+};
+</script>
+
+<template>
         <nav class="navbar">
             <a href="#" class="logo">여기어때</a>
             <div>
@@ -23,12 +33,14 @@ z<template>
                 </div>
                 <p class="error" v-if="errorMessage">{{ errorMessage }}</p>
                 <button class="modal-btn" @click="login">로그인</button>
+                <button class="register-btn" @click="goToRegister">회원가입</button>
                 <button class="close-btn" @click="closeModal">닫기</button>
             </div>
         </div>
 </template>
     
 <script>
+
     export default {
         name: 'NavbarComponent',
         data() {
@@ -139,6 +151,17 @@ z<template>
         padding: 10px;
         width: 100%;
         background-color: red;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+
+    .register-btn {
+        padding: 10px;
+        width: 100%;
+        background-color: rgb(232, 66, 20);
         color: white;
         border: none;
         cursor: pointer;
