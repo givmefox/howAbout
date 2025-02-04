@@ -10,7 +10,7 @@
   
         <div class="form-group">
           <label for="id">아이디</label>
-          <input type="text" id="id" v-model="id" placeholder="아이디를 입력하세요">
+          <input type="text" id="userid" v-model="userid" placeholder="아이디를 입력하세요">
         </div>
   
         <div class="form-group">
@@ -27,29 +27,47 @@
   </template>
   
   <script setup>
-  import { ref } from "vue";
-  import { useRouter } from "vue-router";
-  
-  const router = useRouter();
-  const username = ref("");
-  const id = ref("");
-  const password = ref("");
-  const errorMessage = ref("");
-  
-  const register = () => {
-    if (!username.value || !id.value || !password.value) {
-      errorMessage.value = "모든 필드를 입력하세요!";
-      return;
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import axios from "axios";  // ✅ axios 추가
+
+const router = useRouter();
+const username = ref("");
+const userid = ref("");
+const password = ref("");
+const errorMessage = ref("");
+
+const register = async () => {
+  if (!username.value || !userid.value || !password.value) {
+    errorMessage.value = "모든 필드를 입력하세요!";
+    return;
+  }
+
+  try {
+    console.log("회원가입 요청:", { userid: userid.value, username: username.value, password: password.value });
+
+    const response = await axios.post("http://localhost:3000/auth/register", {
+      userid: userid.value,
+      username: username.value,
+      password: password.value
+    });
+
+    if (response.data.result === "ok") {
+      alert("회원가입 성공! 🎉");
+      router.push("/login");  // ✅ 회원가입 성공 시 로그인 페이지로 이동
+    } else {
+      errorMessage.value = response.data.message || "회원가입 실패!";
     }
-  
-    alert("회원가입 성공! 🎉");
-    router.push("/login"); // 회원가입 후 로그인 페이지로 이동
-  };
-  
-  const goBack = () => {
-    router.push("/");
-  };
-  </script>
+  } catch (error) {
+    console.error("회원가입 오류:", error);
+    errorMessage.value = error.response?.data?.message || "회원가입 중 오류 발생!";
+  }
+};
+
+const goBack = () => {
+  router.push("/");
+};
+</script>
   
   <style scoped>
   .register-container {
