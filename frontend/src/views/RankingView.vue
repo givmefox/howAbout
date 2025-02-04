@@ -32,7 +32,9 @@
               <tr v-for="(keyword, index) in filteredKeywords" :key="index">
                 <td>{{ index + 1 }}</td>
                 <td>
-                  <router-link :to="`/keyword/${encodeURIComponent(keyword.name)}`">{{ keyword.name }}</router-link>
+                  <router-link :to="`/keyword/${encodeURIComponent(keyword.name)}`">
+                  {{ keyword.name }}
+                  </router-link>
                 </td>
                 <td>{{ keyword.category }}</td>
                 <td>{{ keyword.score }}</td>

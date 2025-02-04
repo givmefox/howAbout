@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import RegisterView from "@/views/RegisterView.vue";
 import RankingView from "@/views/RankingView.vue";
+import KeywordDetail from "@/views/KeywordDetail.vue";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -15,6 +16,12 @@ const router = createRouter({
             path: "/ranking",
             name: "Ranking",
             component: RankingView,
+        },
+
+        { 
+            path: '/keyword/:keyword', 
+            component: KeywordDetail, 
+            props: true 
         },
     ],
 });
