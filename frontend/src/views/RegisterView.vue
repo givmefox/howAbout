@@ -26,10 +26,10 @@
     </div>
   </template>
   
-  <script setup>
+<script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";  // ✅ axios 추가
+import axios from "axios";
 
 const router = useRouter();
 const username = ref("");
@@ -54,7 +54,7 @@ const register = async () => {
 
     if (response.data.result === "ok") {
       alert("회원가입 성공! 🎉");
-      router.push("/login");  // ✅ 회원가입 성공 시 로그인 페이지로 이동
+      router.push("/");  // ✅ 회원가입 성공 시 로그인 페이지로 이동
     } else {
       errorMessage.value = response.data.message || "회원가입 실패!";
     }
