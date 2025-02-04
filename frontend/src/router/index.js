@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import RegisterView from "@/views/RegisterView.vue";
+import RankingView from "@/views/RankingView.vue";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -8,6 +9,12 @@ const router = createRouter({
             path: "/register",
             name: "Register",
             component: RegisterView,
+        },
+
+        {
+            path: "/ranking",
+            name: "Ranking",
+            component: RankingView,
         },
     ],
 });

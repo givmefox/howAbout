@@ -9,7 +9,7 @@ const userid = ref("");
 const password = ref("");
 const errorMessage = ref("");
 const isLoggedIn = ref(false);
-const username = ref(""); // ✅ 로그인한 유저 이름 저장
+const username = ref("");
 
 // ✅ 로그인 모달 열기
 const openModal = () => {
@@ -103,8 +103,8 @@ onMounted(() => {
   <nav class="navbar">
     <a href="#" class="logo">여기어때</a>
     <div>
-      <a href="#">Home</a>
-      <a href="#">Chart</a>
+      <a href="/">Home</a>
+      <router-link to="/Ranking">Ranking</router-link>
       <a href="#">About</a>
       <template v-if="isLoggedIn">
         <span class="welcome-message">환영합니다, {{ username }}님!</span>
@@ -172,6 +172,10 @@ onMounted(() => {
   font-weight: bold;
   cursor: pointer;
   border-radius: 10px;
+}
+
+.login-btn:hover {
+  transform: scale(1.1);
 }
 
 .logout-btn {
