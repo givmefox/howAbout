@@ -84,7 +84,12 @@ exports.login = async (req, res) => {
           expiresIn: "1h",
         }
       );
-      res.status(200).json({ result: "ok", access_token: token });
+      res.status(200).json({
+        result: "ok", 
+        access_token: token, 
+        serid: user.userid,
+        username: user.username,
+      });
     }
   } catch (error) {
     res.status(500).json({ result: "fail", message: error.message });
