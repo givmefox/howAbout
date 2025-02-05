@@ -1,10 +1,14 @@
 <template>
   <Navbar />
+  <div class="main-container">
+    <SearchBar />
+  </div>
   <router-view />
 </template>
 
 <script>
 import Navbar from './components/NavbarComponent.vue';
+import SearchBar from "./components/SearchBarComponent.vue";
 
 export default{
   name: 'App',
@@ -14,6 +18,7 @@ export default{
   },
   components: {
     Navbar: Navbar,
+    SearchBar: SearchBar,
   }
 }
 </script>
@@ -22,17 +27,13 @@ export default{
 body {
   margin: 0 auto;
   padding: 20px;
+  text-align: center;
 }
 
-h1, h2, h3 {
-  margin-bottom: 1rem;
-}
-
-p {
-  margin-bottom: 0.5rem;
-}
-
-button {
-  margin-right: 10px;
+.main-container {
+  display: flex;
+  justify-content: center; /* 검색창 중앙 정렬 */
+  align-items: center;
+  height: 10vh; /* 높이 조정 */
 }
 </style>
