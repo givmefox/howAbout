@@ -72,7 +72,7 @@ def save_comments(videos):
 
     # 실행 날짜 포함한 파일명
     today = datetime.today().strftime("%Y-%m-%d")
-    filename = f"comments_{today}.json"
+    filename = f"ㅁcomments_{today}.json"
 
     # JSON 파일로 저장
     with open(filename, "w", encoding="utf-8") as f:

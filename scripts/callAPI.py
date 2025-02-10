@@ -71,7 +71,7 @@ def save_videos():
 
     # 실행 날짜 포함한 파일명
     today = datetime.today().strftime("%Y-%m-%d")
-    filename = f"ㅁㅁㅁㅁㅁㅁvideos_{today}.json"
+    filename = f"videos_{today}.json"
 
     # JSON 파일로 저장
     with open(filename, "w", encoding="utf-8") as f:
