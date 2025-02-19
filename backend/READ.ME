@@ -1,0 +1,32 @@
+
+폴더명 : backend/routes
+- mongoRoute.js
+    - user 정의
+    - keyword rank 정의
+    - users 컬렉션에서 user 정보 가져오는 api
+    - keyword_rank 컬렉션에서 키워드 순위 가져오는 api
+
+
+폴더명 : backend/src/database/
+- mongodb.js
+    - 로컬 몽고db연결
+
+
+
+폴더명 : backend
+- index_test
+    - index 테스트용
+    - Mysql 및 몽고DB 연결
+    - 3000번 포트에서 실행됨
+
+- rank.py
+    - test_database의 keyword_rank 컬렉션에 ranked_data.json의 정보를 삽입 , 즉 db에 키워드 랭크 저장
+
+
+실행방법: 
+    - 터미널에서 backend 디렉토리까지 이동
+    - npm start
+    - curl -X GET http://localhost:3000/api/mongo-users (user정보 불러오는 명령어)
+    - curl -X GET http://localhost:3000/mongo-rank (키워드 명령어)
+
+
