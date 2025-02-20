@@ -1,0 +1,486 @@
+{
+    "생각": [],
+    "감사": [],
+    "응원": [],
+    "정도": [],
+    "중국": [
+        {
+            "video_id": "UmFgLpoKOuA",
+            "score": 1.9767091686705371
+        },
+        {
+            "video_id": "x_wR-jWg6f8",
+            "score": 3.85966059230928
+        },
+        {
+            "video_id": "tYffLnWjcB4",
+            "score": 1.8675556947430154
+        },
+        {
+            "video_id": "ZOJCatQ9fQU",
+            "score": 3.40192440692753
+        },
+        {
+            "video_id": "AuJ0O60FLvU",
+            "score": 1.9075086615612773
+        }
+    ],
+    "이번": [],
+    "방송": [
+        {
+            "video_id": "DQB4_GmKb-0",
+            "score": 2.0363187114520502
+        }
+    ],
+    "한국": [
+        {
+            "video_id": "ZOJCatQ9fQU",
+            "score": 1.5416788889488635
+        },
+        {
+            "video_id": "54EJBmnFPBY",
+            "score": 1.3477092082725495
+        },
+        {
+            "video_id": "hAEfi_SKTEU",
+            "score": 1.456349337304221
+        }
+    ],
+    "영상": [],
+    "시간": [],
+    "느낌": [],
+    "사랑": [
+        {
+            "video_id": "pz83Zy5IOQ8",
+            "score": 1.7837961786395664
+        },
+        {
+            "video_id": "FIxMEKNIVVA",
+            "score": 1.3690036520596682
+        },
+        {
+            "video_id": "lQgsdpi4N6U",
+            "score": 1.6952669235226048
+        },
+        {
+            "video_id": "xEeROqUidGg",
+            "score": 1.4321174899514193
+        },
+        {
+            "video_id": "KpOF9DOm4f4",
+            "score": 2.208305624700696
+        }
+    ],
+    "정치": [
+        {
+            "video_id": "cvmdNi_oBYA",
+            "score": 2.0715360222831567
+        },
+        {
+            "video_id": "VfpKABhDD9I",
+            "score": 1.3883359897689793
+        },
+        {
+            "video_id": "tYffLnWjcB4",
+            "score": 1.398078158770713
+        },
+        {
+            "video_id": "0hTHRJlkyhc",
+            "score": 1.3904949070854058
+        },
+        {
+            "video_id": "Cto_QZMG3-w",
+            "score": 1.6461059166076786
+        }
+    ],
+    "나라": [],
+    "이상": [
+        {
+            "video_id": "O3MTA8jYug4",
+            "score": 2.892454844006646
+        }
+    ],
+    "인간": [],
+    "의원": [],
+    "내란": [],
+    "국민": [],
+    "윤석열": [],
+    "탄핵": [
+        {
+            "video_id": "8eMGOnn9WsE",
+            "score": 1.4284471877717801
+        },
+        {
+            "video_id": "VfpKABhDD9I",
+            "score": 1.3690036520596682
+        },
+        {
+            "video_id": "lMB0WMHdTxY",
+            "score": 1.3690036520596678
+        },
+        {
+            "video_id": "GmUnl6ce92Q",
+            "score": 1.3810958254564727
+        },
+        {
+            "video_id": "UmFgLpoKOuA",
+            "score": 1.3690036520596678
+        }
+    ],
+    "대통령": [],
+    "기대": [],
+    "민주": [
+        {
+            "video_id": "IC3iNhz02l0",
+            "score": 1.6646912355005066
+        },
+        {
+            "video_id": "cvmdNi_oBYA",
+            "score": 1.961804727863118
+        },
+        {
+            "video_id": "PaFf3jmHVS8",
+            "score": 1.8917559928089056
+        },
+        {
+            "video_id": "5V8bHfodNU8",
+            "score": 1.664021531704456
+        },
+        {
+            "video_id": "b3aRCbm-NhE",
+            "score": 5.829472810248218
+        }
+    ],
+    "언론": [
+        {
+            "video_id": "54EJBmnFPBY",
+            "score": 2.7822572526178484
+        }
+    ],
+    "국회": [],
+    "게임": [],
+    "구독": [
+        {
+            "video_id": "lQgsdpi4N6U",
+            "score": 2.5181556808417254
+        },
+        {
+            "video_id": "qsVcG4ki4_o",
+            "score": 1.4945759067856677
+        },
+        {
+            "video_id": "pMfeW-F5paA",
+            "score": 2.019748055810812
+        }
+    ],
+    "정신": [],
+    "대한민": [
+        {
+            "video_id": "cvmdNi_oBYA",
+            "score": 1.42306206866294
+        },
+        {
+            "video_id": "PaFf3jmHVS8",
+            "score": 2.351107476241218
+        },
+        {
+            "video_id": "5V8bHfodNU8",
+            "score": 2.2530629536061153
+        },
+        {
+            "video_id": "b3aRCbm-NhE",
+            "score": 2.018322637337482
+        },
+        {
+            "video_id": "cTlzcxEh4tE",
+            "score": 2.0744034734761643
+        }
+    ],
+    "공산": [
+        {
+            "video_id": "lMB0WMHdTxY",
+            "score": 1.3710073454031013
+        },
+        {
+            "video_id": "UmFgLpoKOuA",
+            "score": 2.0855684817888362
+        },
+        {
+            "video_id": "x_wR-jWg6f8",
+            "score": 2.498654260607451
+        },
+        {
+            "video_id": "tYffLnWjcB4",
+            "score": 2.7121866760534292
+        },
+        {
+            "video_id": "ZOJCatQ9fQU",
+            "score": 1.4857788138969847
+        }
+    ],
+    "음악": [],
+    "소리": [],
+    "최고": [],
+    "문제": [],
+    "아이": [
+        {
+            "video_id": "lIQ5R4xnIvQ",
+            "score": 1.3690036520596678
+        },
+        {
+            "video_id": "hAEfi_SKTEU",
+            "score": 1.6549729169302227
+        },
+        {
+            "video_id": "0cPSD5t3Qc4",
+            "score": 1.4183948871164644
+        },
+        {
+            "video_id": "CNoXGukA994",
+            "score": 1.7557376705521732
+        },
+        {
+            "video_id": "1yIcdMatP-Q",
+            "score": 1.738007304119336
+        }
+    ],
+    "노래": [],
+    "기자": [],
+    "계엄": [],
+    "민주당": [],
+    "문형배": [],
+    "정보": [],
+    "헌재": [],
+    "이재명": [],
+    "구속": [],
+    "국가": [],
+    "댓글": [],
+    "뉴스": [],
+    "김현": [
+        {
+            "video_id": "IC3iNhz02l0",
+            "score": 1.852927106703076
+        },
+        {
+            "video_id": "cvmdNi_oBYA",
+            "score": 3.871706073264019
+        },
+        {
+            "video_id": "b3aRCbm-NhE",
+            "score": 2.158838303354328
+        },
+        {
+            "video_id": "z0i2ucvT24o",
+            "score": 2.294130577968901
+        },
+        {
+            "video_id": "tXD4J563DcU",
+            "score": 3.2058999512515274
+        }
+    ],
+    "프로": [
+        {
+            "video_id": "AuJ0O60FLvU",
+            "score": 1.3690036520596678
+        },
+        {
+            "video_id": "oFdtUKHKOZc",
+            "score": 1.3690036520596682
+        },
+        {
+            "video_id": "B5InJ8bYLDM",
+            "score": 1.3690036520596678
+        }
+    ],
+    "김건": [
+        {
+            "video_id": "IC3iNhz02l0",
+            "score": 1.4047671898619525
+        },
+        {
+            "video_id": "5V8bHfodNU8",
+            "score": 1.6334532929891021
+        },
+        {
+            "video_id": "SmMnL_rTItw",
+            "score": 1.6028871736020083
+        },
+        {
+            "video_id": "aYYybP18qxg",
+            "score": 1.3841109790135286
+        },
+        {
+            "video_id": "Oifo2XoIX4U",
+            "score": 1.3096966746066534
+        }
+    ],
+    "목소리": [],
+    "오늘": [],
+    "필요": [],
+    "재판": [
+        {
+            "video_id": "IC3iNhz02l0",
+            "score": 1.6816218953449686
+        },
+        {
+            "video_id": "PaFf3jmHVS8",
+            "score": 4.1435624332072
+        },
+        {
+            "video_id": "cTlzcxEh4tE",
+            "score": 1.425252954025872
+        },
+        {
+            "video_id": "8eMGOnn9WsE",
+            "score": 2.785252021148744
+        },
+        {
+            "video_id": "x_wR-jWg6f8",
+            "score": 1.3083399041675148
+        }
+    ],
+    "지지": [
+        {
+            "video_id": "S3oZWlEzNfQ",
+            "score": 3.608394639962294
+        }
+    ],
+    "검찰": [],
+    "뮤비": [],
+    "다음": [],
+    "시작": [],
+    "가수": [],
+    "광주": [
+        {
+            "video_id": "8eMGOnn9WsE",
+            "score": 1.3690036520596678
+        },
+        {
+            "video_id": "VfpKABhDD9I",
+            "score": 2.1253574074018946
+        },
+        {
+            "video_id": "GmUnl6ce92Q",
+            "score": 1.4751553410919618
+        },
+        {
+            "video_id": "UmFgLpoKOuA",
+            "score": 2.1455020543852448
+        },
+        {
+            "video_id": "xlaReiFVjiQ",
+            "score": 1.65001127419916
+        }
+    ],
+    "수사": [],
+    "수준": [],
+    "하루": [],
+    "자유": [
+        {
+            "video_id": "lMB0WMHdTxY",
+            "score": 1.3214900199961588
+        },
+        {
+            "video_id": "UmFgLpoKOuA",
+            "score": 1.342036729287842
+        },
+        {
+            "video_id": "x_wR-jWg6f8",
+            "score": 1.411360590167678
+        },
+        {
+            "video_id": "0hTHRJlkyhc",
+            "score": 1.3690036520596678
+        }
+    ],
+    "행복": [],
+    "축하": [],
+    "마음": [],
+    "가짜": [],
+    "우주": [
+        {
+            "video_id": "IgXcQ3fyUug",
+            "score": 1.690018237728271
+        }
+    ],
+    "모습": [],
+    "갤럭시": [],
+    "사용": [
+        {
+            "video_id": "O4osWOWWxiE",
+            "score": 1.647766146139408
+        },
+        {
+            "video_id": "CqIiOjRJit4",
+            "score": 1.3690036520596678
+        }
+    ],
+    "기능": [],
+    "울트라": [],
+    "아이폰": [],
+    "성능": [],
+    "리뷰": [],
+    "구매": [],
+    "카메라": [],
+    "제품": [],
+    "가능": [],
+    "삼성": [],
+    "애플": [],
+    "가격": [],
+    "도움": [],
+    "설정": [],
+    "화면": [],
+    "한동훈": [],
+    "교수": [],
+    "군인": [],
+    "단장": [],
+    "해체": [],
+    "변호": [
+        {
+            "video_id": "IC3iNhz02l0",
+            "score": 3.4963771361879563
+        },
+        {
+            "video_id": "PaFf3jmHVS8",
+            "score": 5.9561452954250065
+        },
+        {
+            "video_id": "b3aRCbm-NhE",
+            "score": 1.794977818419977
+        },
+        {
+            "video_id": "cTlzcxEh4tE",
+            "score": 3.8687051571193325
+        },
+        {
+            "video_id": "VfpKABhDD9I",
+            "score": 1.3790978951163861
+        }
+    ],
+    "유튜": [
+        {
+            "video_id": "UmFgLpoKOuA",
+            "score": 1.4105039933540886
+        },
+        {
+            "video_id": "xlaReiFVjiQ",
+            "score": 1.3690036520596678
+        },
+        {
+            "video_id": "ZOJCatQ9fQU",
+            "score": 1.3690036520596678
+        },
+        {
+            "video_id": "54EJBmnFPBY",
+            "score": 1.7916462246197211
+        },
+        {
+            "video_id": "6k74FOZ7HuU",
+            "score": 1.804844906692335
+        }
+    ],
+    "감동": [],
+    "눈물": [],
+    "세상": [],
+    "멤버": []
+}
