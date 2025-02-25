@@ -19,14 +19,26 @@
     - Mysql 및 몽고DB 연결
     - 3000번 포트에서 실행됨
 
-- rank.py
+- final_rank.py
     - test_database의 keyword_rank 컬렉션에 ranked_data.json의 정보를 삽입 , 즉 db에 키워드 랭크 저장
 
+- related_keywords_update.py
+    - test_database에 related_keywords 컬렉션이 없으면 생성 후 related_keywords.json의 데이터 삽입. 
+    있으면 덮어쓰기 , 즉 db에 연관 키워드 저장
+
+- keywords_popular_videos_update.py
+    - test_database에 keywords_popular_videos 컬렉션이 없으면 생성 후 keywords_popular_videos.json의 데이터 삽입. 
+    있으면 덮어쓰기, 즉 db에 키워드별 인기 동영상 저장
 
 실행방법: 
     - 터미널에서 backend 디렉토리까지 이동
-    - npm start
-    - curl -X GET http://localhost:3000/api/mongo-users (user정보 불러오는 명령어)
-    - curl -X GET http://localhost:3000/mongo-rank (키워드 명령어)
+    - npm start 또는 node index_test.js 실행
+    
+    - curl -X GET http://localhost:3000/api/mongo-users (user정보 불러오는 명령어) 
+    - curl -X GET http://localhost:3000/api/mongo-rank (키워드 랭크 명령어)
+    - curl -X GET http://localhost:3000/api/mongo-related-keywords (연관키워드 명령어)
+    - curl -X GET http://localhost:3000/api/mongo-popular-videos
+    - curl -X GET http://localhost:3000/api/mongo-popular-videos/중국
+
 
 
