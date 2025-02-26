@@ -2,7 +2,11 @@ import json
 import pymongo
 
 # JSON 파일 로드
+<<<<<<< HEAD
 file_path = "/Users/82102/Desktop/howabout/howabout/youtube/scripts/final_keywords_ranking.json"
+=======
+file_path = "/Users/melon/soynlp_training_data/youtube/scripts/final_keywords_ranking.json"
+>>>>>>> ff2161a21e8da6c87e8e4c711dbdd596261bf8a9
 
 with open(file_path, "r", encoding="utf-8") as file:
     keywords_data = json.load(file)
