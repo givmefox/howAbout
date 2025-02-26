@@ -7,14 +7,14 @@
     <div class="related-keywords">
       <h3>🔗 연관 키워드</h3>
       <div class="tags">
-        <button
+        <span
           v-for="tag in relatedKeywords"
           :key="tag"
           @click="goToKeyword(tag)"
-          class="keyword-btn"
+          class="keyword-tag"
         >
-          {{ tag }}
-        </button>
+          #{{ tag }}
+        </span>
       </div>
     </div>
 
@@ -22,107 +22,138 @@
     <div class="content">
       <div class="related-videos">
         <h3>연관 동영상</h3>
-        <div v-for="video in videos" :key="video.id" class="video-item">
+        <div v-for="video in videos" :key="video.video_id" class="video-item">
           <img
-            :src="video.thumbnail"
-            :alt="video.title"
+            :src="getThumbnailUrl(video.video_id)"
+            :alt="video.video_id"
             class="video-thumbnail"
           />
-          <a :href="video.link" target="_blank" class="video-title">{{
-            video.title
-          }}</a>
+          <div class="video-info">
+            <a
+              :href="getVideoUrl(video.video_id)"
+              target="_blank"
+              class="video-title"
+            >
+              YouTube Video - {{ video.video_id }}
+            </a>
+          </div>
         </div>
-      </div>
-
-      <!-- 인기 추이 그래프 -->
-      <div class="chart-container">
-        <h3>인기 추이</h3>
-        <canvas ref="popularityChart"></canvas>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
-import Chart from "chart.js/auto";
+import { ref, onMounted, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import axios from "axios";
 
 const route = useRoute();
+const router = useRouter();
 const keyword = ref(route.params.keyword || "알 수 없음");
+const apiUrl = process.env.VUE_APP_API_URL;
+const relatedKeywords = ref([]);
+const videos = ref([]);
 
-// 예제 연관 키워드 데이터
-const relatedKeywords = ref([
-  "연관키워드1",
-  "연관키워드2",
-  "연관키워드3",
-  "연관키워드4",
-]);
-// 예제 동영상 데이터
-const videos = ref([
-  {
-    title:
-      "LCK 컵 그룹배틀 전승 KDA 4️⃣9️⃣인 선수👤가 WORLDS 우승🏆 MSI 준우승🎭 리그 쓰리핏3️⃣ 있고요...",
-    link: "https://www.youtube.com/watch?v=YIsOAxUbOnE",
-    thumbnail: "https://img.youtube.com/vi/YIsOAxUbOnE/maxresdefault.jpg",
-  },
-  {
-    title: "Example Video 2",
-    link: "https://youtube.com/watch?v=2",
-    thumbnail: "https://img.youtube.com/vi/2/hqdefault.jpg",
-  },
-  {
-    title: "Example Video 3",
-    link: "https://youtube.com/watch?v=3",
-    thumbnail: "https://img.youtube.com/vi/3/hqdefault.jpg",
-  },
-  {
-    title: "Example Video 4",
-    link: "https://youtube.com/watch?v=4",
-    thumbnail: "https://img.youtube.com/vi/4/hqdefault.jpg",
-  },
-  {
-    title: "Example Video 5",
-    link: "https://youtube.com/watch?v=5",
-    thumbnail: "https://img.youtube.com/vi/5/hqdefault.jpg",
-  },
-]);
+// 특정 키워드의 연관 키워드 및 관련 동영상 데이터를 가져오는 함수
+const fetchKeywordDetails = async () => {
+  try {
+    console.log(`Fetching details for keyword: ${keyword.value}`);
 
-const popularityChart = ref(null);
+    // 연관 키워드 가져오기
+    const relatedResponse = await axios.get(`${apiUrl}/api/related-keywords`, {
+      params: { keyword: keyword.value },
+    });
+    const keywordData = relatedResponse.data.data.find(
+      (item) => item.keyword === keyword.value
+    );
+    relatedKeywords.value = keywordData?.related || [];
 
-// 그래프 생성
+    // 인기 영상 데이터 가져오기
+    const videoResponse = await axios.get(
+      `${apiUrl}/api/keywords-popular-videos`,
+      {
+        params: { keyword: keyword.value },
+      }
+    );
+    videos.value = videoResponse.data.data
+      .filter((item) => item.keyword === keyword.value)
+      .flatMap((item) =>
+        item.videos.map((video) => ({
+          video_id: video.video_id,
+          score: video.score,
+        }))
+      );
+  } catch (error) {
+    console.error("❌ 데이터 불러오기 실패:", error);
+  }
+};
+
+// 유튜브 썸네일 URL 생성 함수
+const getThumbnailUrl = (videoId) => {
+  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+};
+
+// 유튜브 동영상 URL 생성 함수
+const getVideoUrl = (videoId) => {
+  return `https://www.youtube.com/watch?v=${videoId}`;
+};
+
+// 연관 키워드 클릭 시 해당 키워드 페이지로 이동
+const goToKeyword = (newKeyword) => {
+  if (newKeyword !== keyword.value) {
+    router.push(`/keyword/${encodeURIComponent(newKeyword)}`);
+  }
+};
+
 onMounted(() => {
-  const ctx = popularityChart.value.getContext("2d");
-  new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월"],
-      datasets: [
-        {
-          label: "인기 점수",
-          data: [50, 40, 60, 80, 70, 50, 90],
-          borderColor: "rgba(255, 99, 132, 1)",
-          backgroundColor: "rgba(255, 99, 132, 0.2)",
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-    },
-  });
+  fetchKeywordDetails();
 });
+
+// 키워드가 변경될 때마다 데이터를 다시 가져옴
+watch(
+  () => route.params.keyword,
+  (newKeyword) => {
+    keyword.value = newKeyword;
+    fetchKeywordDetails();
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>
+.related-keywords {
+  margin: 15px 0;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.keyword-tag {
+  display: inline-block;
+  background-color: #e0f7fa;
+  color: #007bff;
+  padding: 8px 12px;
+  margin: 5px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.keyword-tag:hover {
+  background-color: #b2ebf2;
+}
+
 .related-videos {
   background-color: #f9f9f9;
   border-radius: 8px;
   padding: 15px;
   width: 100%;
-  max-width: 400px;
+  max-width: 600px;
 }
 
-/* 키워드 제목 */
 .keyword-title {
   width: 100%;
   text-align: center;
@@ -133,34 +164,12 @@ onMounted(() => {
   font-weight: bold;
 }
 
-/* 메인 콘텐츠 */
 .content {
   width: 100%;
-  height: calc(100vh - 60px);
   display: flex;
   gap: 20px;
   padding: 20px;
   box-sizing: border-box;
-}
-
-/* 인기 추이 그래프 */
-.chart-container {
-  flex: 4;
-  text-align: center;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-  padding: 20px;
-}
-
-/* 연관 동영상 리스트 */
-.video-list {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-  padding: 20px;
 }
 
 .video-item {
@@ -175,26 +184,27 @@ onMounted(() => {
   overflow: hidden;
   margin-bottom: 10px;
 }
+
 .video-thumbnail {
   width: 120px;
   height: 90px;
-  object-fit: cover; /* 잘림 방지 */
+  object-fit: cover;
   border-radius: 5px;
 }
 
-.video-item img {
-  width: 120px;
-  height: 90px;
-  object-fit: cover;
+.video-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.video-item a {
+.video-title {
+  font-size: 16px;
   color: #007bff;
   text-decoration: none;
-  font-size: 16px;
 }
 
-.video-item a:hover {
+.video-title:hover {
   text-decoration: underline;
 }
 </style>

@@ -17,8 +17,11 @@
         </select>
       </div>
 
+      <!-- 로딩 표시 -->
+      <div v-if="loading" class="loading">데이터 불러오는 중...</div>
+
       <!-- 랭킹 테이블 -->
-      <div class="hashtags">
+      <div v-else class="hashtags">
         <table>
           <thead>
             <tr>
@@ -29,8 +32,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(keyword, index) in filteredKeywords" :key="index">
-              <td>{{ index + 1 }}</td>
+            <tr v-for="keyword in filteredKeywords" :key="keyword._id">
+              <td>{{ keyword.rank }}</td>
               <td>
                 <router-link
                   :to="`/keyword/${encodeURIComponent(keyword.name)}`"
@@ -38,8 +41,8 @@
                   {{ keyword.name }}
                 </router-link>
               </td>
-              <td>{{ keyword.category }}</td>
-              <td>{{ keyword.score }}</td>
+              <td>{{ keyword.category || "미분류" }}</td>
+              <td>{{ keyword.score || "N/A" }}</td>
             </tr>
           </tbody>
         </table>
@@ -49,47 +52,45 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 
-const searchQuery = ref("");
+// 상태 변수
+const keywords = ref([]);
 const selectedCategory = ref("all");
-const keywords = ref([
-  { name: "#뮤직히트", category: "music", score: 98 },
-  { name: "#스포츠업데이트", category: "sports", score: 92 },
-  { name: "#영화예고편", category: "movies", score: 88 },
-  { name: "#게임트렌드", category: "gaming", score: 85 },
-  { name: "#속보", category: "news", score: 83 },
-  { name: "#팝히트", category: "music", score: 81 },
-  { name: "#축구열기", category: "sports", score: 79 },
-  { name: "#애니메이션버즈", category: "movies", score: 76 },
-  { name: "#이스포츠월드", category: "gaming", score: 74 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-]);
+const loading = ref(true); // 데이터 로딩 여부
+const apiUrl = process.env.VUE_APP_API_URL;
+// API에서 데이터 가져오기s
+const fetchKeywords = async () => {
+  try {
+    const response = await axios.get(`${apiUrl}/api/mongo-rank`);
 
-// 카테고리 및 검색 필터링
+    if (response.data && response.data.data) {
+      // 데이터 변환 (_id → rank, 키워드 → name)
+      keywords.value = response.data.data.map((item) => ({
+        _id: item._id, // MongoDB ID
+        rank: item.순위, // 순위
+        name: item.키워드, // 키워드
+        category: "미분류", // 현재 API에는 카테고리 없음 (추후 추가 가능)
+        score: "N/A", // 현재 API에 점수 없음 (추후 추가 가능)
+      }));
+    }
+  } catch (error) {
+    console.error("❌ 데이터 불러오기 실패:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 컴포넌트가 마운트될 때 API 호출
+onMounted(fetchKeywords);
+
+// 카테고리 필터링
 const filteredKeywords = computed(() => {
   return keywords.value.filter((keyword) => {
     return (
-      (selectedCategory.value === "all" ||
-        keyword.category === selectedCategory.value) &&
-      keyword.name.includes(searchQuery.value)
+      selectedCategory.value === "all" ||
+      keyword.category === selectedCategory.value
     );
   });
 });
@@ -113,6 +114,13 @@ const filteredKeywords = computed(() => {
   border-radius: 5px;
 }
 
+.loading {
+  text-align: center;
+  font-size: 18px;
+  color: gray;
+  margin-top: 20px;
+}
+
 .hashtags {
   display: flex;
   justify-content: center;
@@ -120,7 +128,7 @@ const filteredKeywords = computed(() => {
 
 table {
   width: 80%;
-  margin: auto; /* 테이블을 가운데 정렬 */
+  margin: auto;
   border-collapse: collapse;
   font-size: 16px;
 }
