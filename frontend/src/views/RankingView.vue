@@ -8,12 +8,11 @@
       <div class="filter-container">
         <label for="category-filter">카테고리 : </label>
         <select id="category-filter" v-model="selectedCategory">
-          <option value="all">전체</option>
-          <option value="music">음악</option>
-          <option value="sports">스포츠</option>
-          <option value="movies">영화 및 애니메이션</option>
-          <option value="gaming">게임</option>
-          <option value="news">뉴스 및 정치</option>
+          <option value="News & Politics">뉴스 및 정치</option>
+          <option value="Music">음악</option>
+          <option value="Sports">스포츠</option>
+          <option value="Gaming">게임</option>
+          <option value="Science & Technology">과학 및 기술</option>
         </select>
       </div>
 
@@ -28,11 +27,13 @@
               <th>순위</th>
               <th>키워드</th>
               <th>카테고리</th>
-              <th>인기도 점수</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="keyword in filteredKeywords" :key="keyword._id">
+            <tr
+              v-for="(keyword, index) in filteredKeywords.slice(0, 50)"
+              :key="index"
+            >
               <td>{{ keyword.rank }}</td>
               <td>
                 <router-link
@@ -41,8 +42,7 @@
                   {{ keyword.name }}
                 </router-link>
               </td>
-              <td>{{ keyword.category || "미분류" }}</td>
-              <td>{{ keyword.score || "N/A" }}</td>
+              <td>{{ keyword.category }}</td>
             </tr>
           </tbody>
         </table>
@@ -56,24 +56,25 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 
 // 상태 변수
-const keywords = ref([]);
-const selectedCategory = ref("all");
+const keywordsByCategory = ref({});
+const selectedCategory = ref("News & Politics");
 const loading = ref(true); // 데이터 로딩 여부
 const apiUrl = process.env.VUE_APP_API_URL;
-// API에서 데이터 가져오기s
+
+// API에서 데이터 가져오기
 const fetchKeywords = async () => {
   try {
-    const response = await axios.get(`${apiUrl}/api/mongo-rank`);
-
+    const response = await axios.get(`${apiUrl}/api/mongo-category-keywords`);
     if (response.data && response.data.data) {
-      // 데이터 변환 (_id → rank, 키워드 → name)
-      keywords.value = response.data.data.map((item) => ({
-        _id: item._id, // MongoDB ID
-        rank: item.순위, // 순위
-        name: item.키워드, // 키워드
-        category: "미분류", // 현재 API에는 카테고리 없음 (추후 추가 가능)
-        score: "N/A", // 현재 API에 점수 없음 (추후 추가 가능)
-      }));
+      // 데이터를 카테고리별로 변환
+      keywordsByCategory.value = response.data.data.reduce((acc, item) => {
+        acc[item.category] = item.ranked_keywords.map((keyword) => ({
+          rank: keyword.순위,
+          name: keyword.키워드,
+          category: item.category,
+        }));
+        return acc;
+      }, {});
     }
   } catch (error) {
     console.error("❌ 데이터 불러오기 실패:", error);
@@ -87,12 +88,7 @@ onMounted(fetchKeywords);
 
 // 카테고리 필터링
 const filteredKeywords = computed(() => {
-  return keywords.value.filter((keyword) => {
-    return (
-      selectedCategory.value === "all" ||
-      keyword.category === selectedCategory.value
-    );
-  });
+  return keywordsByCategory.value[selectedCategory.value]?.slice(0, 50) || [];
 });
 </script>
 

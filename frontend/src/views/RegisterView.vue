@@ -65,11 +65,14 @@ const register = async () => {
       password: password.value,
     });
 
-    const response = await axios.post("http://192.168.183.85:8080", {
-      userid: userid.value,
-      username: username.value,
-      password: password.value,
-    });
+    const response = await axios.post(
+      "http://192.168.183.202:3000/auth/register",
+      {
+        userid: userid.value,
+        username: username.value,
+        password: password.value,
+      }
+    );
 
     if (response.data.result === "ok") {
       alert("회원가입 성공! 🎉");

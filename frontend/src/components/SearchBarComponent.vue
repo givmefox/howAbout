@@ -11,13 +11,16 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from "vue";
+import { ref } from "vue"; // 'vue'에서 가져와야 합니다.
+import { useRouter } from "vue-router";
 
 const searchQuery = ref("");
-const emit = defineEmits(["search"]);
+const router = useRouter();
 
 const emitSearch = () => {
-  emit("search", searchQuery.value);
+  if (searchQuery.value.trim()) {
+    router.push(`/keyword/${encodeURIComponent(searchQuery.value)}`);
+  }
 };
 </script>
 

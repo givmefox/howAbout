@@ -25,7 +25,7 @@
         <div v-for="video in videos" :key="video.video_id" class="video-item">
           <img
             :src="getThumbnailUrl(video.video_id)"
-            :alt="video.video_id"
+            :alt="video.title"
             class="video-thumbnail"
           />
           <div class="video-info">
@@ -34,7 +34,7 @@
               target="_blank"
               class="video-title"
             >
-              YouTube Video - {{ video.video_id }}
+              {{ video.title }}
             </a>
           </div>
         </div>
@@ -61,9 +61,12 @@ const fetchKeywordDetails = async () => {
     console.log(`Fetching details for keyword: ${keyword.value}`);
 
     // 연관 키워드 가져오기
-    const relatedResponse = await axios.get(`${apiUrl}/api/related-keywords`, {
-      params: { keyword: keyword.value },
-    });
+    const relatedResponse = await axios.get(
+      `${apiUrl}/api/mongo-related-keywords`,
+      {
+        params: { keyword: keyword.value },
+      }
+    );
     const keywordData = relatedResponse.data.data.find(
       (item) => item.keyword === keyword.value
     );
@@ -71,7 +74,7 @@ const fetchKeywordDetails = async () => {
 
     // 인기 영상 데이터 가져오기
     const videoResponse = await axios.get(
-      `${apiUrl}/api/keywords-popular-videos`,
+      `${apiUrl}/api/mongo-keyword-videos`,
       {
         params: { keyword: keyword.value },
       }
@@ -81,6 +84,7 @@ const fetchKeywordDetails = async () => {
       .flatMap((item) =>
         item.videos.map((video) => ({
           video_id: video.video_id,
+          title: video.title,
           score: video.score,
         }))
       );
