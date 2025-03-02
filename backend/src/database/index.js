@@ -20,3 +20,4 @@ exports.pool.query = async (queryString, params) => {
   const [results] = await this.pool.execute(queryString, params);
   return results;
 };
+

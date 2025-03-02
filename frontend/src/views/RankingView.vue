@@ -8,29 +8,33 @@
       <div class="filter-container">
         <label for="category-filter">카테고리 : </label>
         <select id="category-filter" v-model="selectedCategory">
-          <option value="all">전체</option>
-          <option value="music">음악</option>
-          <option value="sports">스포츠</option>
-          <option value="movies">영화 및 애니메이션</option>
-          <option value="gaming">게임</option>
-          <option value="news">뉴스 및 정치</option>
+          <option value="News & Politics">뉴스 및 정치</option>
+          <option value="Music">음악</option>
+          <option value="Sports">스포츠</option>
+          <option value="Gaming">게임</option>
+          <option value="Science & Technology">과학 및 기술</option>
         </select>
       </div>
 
+      <!-- 로딩 표시 -->
+      <div v-if="loading" class="loading">데이터 불러오는 중...</div>
+
       <!-- 랭킹 테이블 -->
-      <div class="hashtags">
+      <div v-else class="hashtags">
         <table>
           <thead>
             <tr>
               <th>순위</th>
               <th>키워드</th>
               <th>카테고리</th>
-              <th>인기도 점수</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(keyword, index) in filteredKeywords" :key="index">
-              <td>{{ index + 1 }}</td>
+            <tr
+              v-for="(keyword, index) in filteredKeywords.slice(0, 50)"
+              :key="index"
+            >
+              <td>{{ keyword.rank }}</td>
               <td>
                 <router-link
                   :to="`/keyword/${encodeURIComponent(keyword.name)}`"
@@ -39,7 +43,6 @@
                 </router-link>
               </td>
               <td>{{ keyword.category }}</td>
-              <td>{{ keyword.score }}</td>
             </tr>
           </tbody>
         </table>
@@ -49,49 +52,43 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 
-const searchQuery = ref("");
-const selectedCategory = ref("all");
-const keywords = ref([
-  { name: "#뮤직히트", category: "music", score: 98 },
-  { name: "#스포츠업데이트", category: "sports", score: 92 },
-  { name: "#영화예고편", category: "movies", score: 88 },
-  { name: "#게임트렌드", category: "gaming", score: 85 },
-  { name: "#속보", category: "news", score: 83 },
-  { name: "#팝히트", category: "music", score: 81 },
-  { name: "#축구열기", category: "sports", score: 79 },
-  { name: "#애니메이션버즈", category: "movies", score: 76 },
-  { name: "#이스포츠월드", category: "gaming", score: 74 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-  { name: "#데일리정치", category: "news", score: 72 },
-]);
+// 상태 변수
+const keywordsByCategory = ref({});
+const selectedCategory = ref("News & Politics");
+const loading = ref(true); // 데이터 로딩 여부
+const apiUrl = process.env.VUE_APP_API_URL;
 
-// 카테고리 및 검색 필터링
+// API에서 데이터 가져오기
+const fetchKeywords = async () => {
+  try {
+    const response = await axios.get(`${apiUrl}/api/mongo-category-keywords`);
+    if (response.data && response.data.data) {
+      // 데이터를 카테고리별로 변환
+      keywordsByCategory.value = response.data.data.reduce((acc, item) => {
+        acc[item.category] = item.ranked_keywords.map((keyword) => ({
+          rank: keyword.순위,
+          name: keyword.키워드,
+          category: item.category,
+        }));
+        return acc;
+      }, {});
+    }
+  } catch (error) {
+    console.error("❌ 데이터 불러오기 실패:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 컴포넌트가 마운트될 때 API 호출
+onMounted(fetchKeywords);
+
+// 카테고리 필터링
 const filteredKeywords = computed(() => {
-  return keywords.value.filter((keyword) => {
-    return (
-      (selectedCategory.value === "all" ||
-        keyword.category === selectedCategory.value) &&
-      keyword.name.includes(searchQuery.value)
-    );
-  });
+  return keywordsByCategory.value[selectedCategory.value]?.slice(0, 50) || [];
 });
 </script>
 
@@ -113,6 +110,13 @@ const filteredKeywords = computed(() => {
   border-radius: 5px;
 }
 
+.loading {
+  text-align: center;
+  font-size: 18px;
+  color: gray;
+  margin-top: 20px;
+}
+
 .hashtags {
   display: flex;
   justify-content: center;
@@ -120,7 +124,7 @@ const filteredKeywords = computed(() => {
 
 table {
   width: 80%;
-  margin: auto; /* 테이블을 가운데 정렬 */
+  margin: auto;
   border-collapse: collapse;
   font-size: 16px;
 }

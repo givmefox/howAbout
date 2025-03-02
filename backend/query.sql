@@ -33,4 +33,3 @@ INSERT INTO youtube_categories (category_id, category_name) VALUES
 (24, 'Entertainment'),
 (25, 'News & Politics'),
 (28, 'Science & Technology');
-

@@ -48,7 +48,7 @@ const login = async () => {
   try {
     console.log("로그인 요청:", userid.value, password.value);
 
-    const response = await axios.post("http://localhost:3000/auth/login", {
+    const response = await axios.post("/api/auth/login", {
       userid: userid.value,
       password: password.value,
     });
@@ -124,7 +124,11 @@ onMounted(() => {
       </div>
       <div class="form-group">
         <label>비밀번호</label>
-        <input type="password" v-model="password" placeholder="비밀번호를 입력하세요" />
+        <input
+          type="password"
+          v-model="password"
+          placeholder="비밀번호를 입력하세요"
+        />
       </div>
       <p class="error" v-if="errorMessage">{{ errorMessage }}</p>
       <button class="modal-btn" @click="login">로그인</button>
