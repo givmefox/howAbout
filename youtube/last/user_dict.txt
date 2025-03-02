@@ -1,6 +1,10 @@
 # News & Politics
+우크라이나	NNP
+우크라	우크라이나/NNP
+한국	NNP	-100
 포박용	NNP
-포박용포	포박용/NNP	-100
+명태균	NNP
+포박용포	포박용/NNP	-500
 곽규택	NNP
 한덕수	NNP
 한국은행	NNP
@@ -8,7 +12,6 @@
 홍장원	NNP
 일론 머스크	NNP
 머스크	일론 머스크/NNP	-100
-한국	NNP
 자유대한민국	NNP
 박선원	NNP
 전한길	NNP
@@ -365,6 +368,7 @@ fifa월드컵	NNP
 올림픽메달	NNP
 
 # Gaming
+브롤 스타즈	NNP
 리그 오브 레전드	NNP
 오버워치	NNP
 배틀그라운드	NNP
@@ -467,7 +471,11 @@ genshin impact	NNP
 apex legends mobile	NNP
 
 # Science & Technology
+인공지능	NNP
+AI	인공지능/NNP
 아이폰 16	NNP
+아이폰16e	NNP
+아이폰 16e	아이폰16e/NNP
 애플 16e	NNP
 애플 16 e	애플 16e/NNP
 삼성전자	NNP
@@ -678,6 +686,7 @@ jtbc 뉴스	NNP
 스트레이키즈	NNP
 스키즈	스트레이키즈/NNP
 방탄소년단	NNP
+방탄	방탄소년단/NNP	-100
 블랙핑크	NNP
 세븐틴	NNP
 엑소	NNP
@@ -954,6 +963,7 @@ MC몽	NNP
 장기하	NNP
 
 # [Sports] (한국어 100개)
+우상형	NNP
 손흥민	NNP
 박지성	NNP
 이강인	NNP
@@ -1139,4 +1149,3 @@ e스포츠 페스티벌	NNP
 z플립 6	NNP
 우왁굳	NNP
 찌엘	모찌엘/NNP
-아이폰16e	NNP
