@@ -21,7 +21,7 @@
     <!-- 콘텐츠 -->
     <div class="content">
       <div class="related-videos">
-        <h3>연관 동영상</h3>
+        <h3>📺 연관 동영상</h3>
         <div v-for="video in videos" :key="video.video_id" class="video-item">
           <img
             :src="getThumbnailUrl(video.video_id)"
@@ -39,14 +39,21 @@
           </div>
         </div>
       </div>
+
+      <!-- 키워드 트렌드 그래프 -->
+      <div class="trend-chart">
+        <h3>📊 키워드 트렌드</h3>
+        <canvas ref="trendChart"></canvas>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
+import Chart from "chart.js/auto";
 
 const route = useRoute();
 const router = useRouter();
@@ -54,6 +61,8 @@ const keyword = ref(route.params.keyword || "알 수 없음");
 const apiUrl = process.env.VUE_APP_API_URL;
 const relatedKeywords = ref([]);
 const videos = ref([]);
+const trendChart = ref(null);
+let chartInstance = null;
 
 // 특정 키워드의 연관 키워드 및 관련 동영상 데이터를 가져오는 함수
 const fetchKeywordDetails = async () => {
@@ -88,6 +97,9 @@ const fetchKeywordDetails = async () => {
           score: video.score,
         }))
       );
+
+    // 임의 데이터로 그래프 표시
+    generateMockChartData();
   } catch (error) {
     console.error("❌ 데이터 불러오기 실패:", error);
   }
@@ -108,6 +120,61 @@ const goToKeyword = (newKeyword) => {
   if (newKeyword !== keyword.value) {
     router.push(`/keyword/${encodeURIComponent(newKeyword)}`);
   }
+};
+
+// 임의의 데이터로 차트 생성
+const generateMockChartData = async () => {
+  await nextTick(); // DOM이 렌더링된 후 실행
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  const ctx = trendChart.value.getContext("2d");
+
+  const mockDates = [
+    "1월",
+    "2월",
+    "3월",
+    "4월",
+    "5월",
+    "6월",
+    "7월",
+    "8월",
+    "9월",
+    "10월",
+  ];
+  const mockValues = Array.from({ length: mockDates.length }, () =>
+    Math.floor(Math.random() * 100)
+  );
+
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: mockDates,
+      datasets: [
+        {
+          label: "검색량",
+          data: mockValues,
+          borderColor: "#007bff",
+          backgroundColor: "rgba(0, 123, 255, 0.2)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          title: { display: true, text: "월별" },
+        },
+        y: {
+          title: { display: true, text: "검색량" },
+        },
+      },
+    },
+  });
 };
 
 onMounted(() => {
@@ -158,6 +225,15 @@ watch(
   max-width: 600px;
 }
 
+.trend-chart {
+  width: 100%;
+  min-height: 300px;
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
 .keyword-title {
   width: 100%;
   text-align: center;
@@ -174,6 +250,7 @@ watch(
   gap: 20px;
   padding: 20px;
   box-sizing: border-box;
+  height: 400px;
 }
 
 .video-item {
@@ -194,12 +271,6 @@ watch(
   height: 90px;
   object-fit: cover;
   border-radius: 5px;
-}
-
-.video-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 .video-title {

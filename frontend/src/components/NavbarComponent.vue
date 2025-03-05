@@ -101,7 +101,7 @@ onMounted(() => {
 
 <template>
   <nav class="navbar">
-    <a href="#" class="logo">여기어때</a>
+    <a href="#" class="logo">이거어때</a>
     <div>
       <a href="/">Home</a>
       <router-link to="/Ranking">Ranking</router-link>

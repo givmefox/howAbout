@@ -32,9 +32,8 @@ with open(json_file_path, "r", encoding="utf-8") as file:
 
 # 데이터를 MongoDB에 저장 (카테고리별 키워드와 비디오 정보)
 formatted_data = [
-    {"category": category, "keyword": keyword, "videos": videos}
-    for category, keywords in data.items()
-    for keyword, videos in keywords.items()
+    {"keyword": keyword, "videos": videos}
+    for keyword, videos in data.items()
 ]
 
 # 중복 데이터 방지를 위해 기존 데이터 삭제 후 삽입
