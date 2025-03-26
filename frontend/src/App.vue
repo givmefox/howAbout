@@ -1,22 +1,22 @@
 <template>
   <Navbar />
   <div class="main-container" v-if="$route.path !== '/register'">
-    <SearchBar />
+    <SearchBarComponent />
   </div>
   <router-view />
 </template>
 
 <script>
 import Navbar from "./components/NavbarComponent.vue";
-import SearchBar from "./components/SearchBarComponent.vue";
+import SearchBarComponent from "./components/SearchBarComponent.vue";
 
 export default {
   name: "App",
   data() {},
   methods: {},
   components: {
-    Navbar: Navbar,
-    SearchBar: SearchBar,
+    Navbar,
+    SearchBarComponent,
   },
 };
 </script>
