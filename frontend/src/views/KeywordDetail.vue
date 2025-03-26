@@ -3,19 +3,22 @@
     <!-- 키워드 제목 -->
     <div class="keyword-title">키워드: {{ keyword }}</div>
 
-    <!-- 연관 키워드 -->
+    <!-- 연관 키워드 (테이블 형태) -->
     <div class="related-keywords">
       <h3>🔗 연관 키워드</h3>
-      <div class="tags">
-        <span
-          v-for="tag in relatedKeywords"
-          :key="tag"
-          @click="goToKeyword(tag)"
-          class="keyword-tag"
-        >
-          #{{ tag }}
-        </span>
-      </div>
+      <v-data-table
+        :headers="keywordHeaders"
+        :items="relatedKeywordsTable"
+        class="elevation-1"
+        dense
+        hide-default-footer
+      >
+        <template v-slot:[`item.keyword`]="{ item }">
+          <span @click="goToKeyword(item.keyword)" class="clickable-keyword">
+            #{{ item.keyword }}
+          </span>
+        </template>
+      </v-data-table>
     </div>
 
     <!-- 콘텐츠 -->
@@ -59,10 +62,18 @@ const route = useRoute();
 const router = useRouter();
 const keyword = ref(route.params.keyword || "알 수 없음");
 const apiUrl = process.env.VUE_APP_API_URL;
-const relatedKeywords = ref([]);
+const relatedKeywordsTable = ref([]);
 const videos = ref([]);
 const trendChart = ref(null);
 let chartInstance = null;
+
+// 테이블 헤더
+const keywordHeaders = [
+  { text: "순위", value: "rank" },
+  { text: "연관 키워드", value: "keyword" },
+  { text: "검색량", value: "search_volume" },
+  { text: "관련성 점수", value: "relevance" },
+];
 
 // 특정 키워드의 연관 키워드 및 관련 동영상 데이터를 가져오는 함수
 const fetchKeywordDetails = async () => {
@@ -79,7 +90,12 @@ const fetchKeywordDetails = async () => {
     const keywordData = relatedResponse.data.data.find(
       (item) => item.keyword === keyword.value
     );
-    relatedKeywords.value = keywordData?.related || [];
+    relatedKeywordsTable.value = (keywordData?.related || []).map(
+      (item, index) => ({
+        rank: index + 1,
+        keyword: item, // ✅ item 자체가 문자열이므로, 그대로 사용!
+      })
+    );
 
     // 인기 영상 데이터 가져오기
     const videoResponse = await axios.get(
@@ -194,27 +210,24 @@ watch(
 
 <style scoped>
 .related-keywords {
-  margin: 15px 0;
-  padding: 10px;
+  margin: 10px auto; /* 위아래 간격 줄이고, 가운데 정렬 */
+  padding: 8px; /* 내부 패딩 줄이기 */
   background-color: #f5f5f5;
   border-radius: 8px;
+  width: 80%; /* 전체 너비의 80%로 줄이기 (기존보다 작아짐) */
+  max-width: 500px; /* 최대 너비 제한 */
+  min-width: 300px; /* 너무 작아지지 않도록 설정 */
 }
 
-.keyword-tag {
-  display: inline-block;
-  background-color: #e0f7fa;
+.clickable-keyword {
   color: #007bff;
-  padding: 8px 12px;
-  margin: 5px;
-  border-radius: 16px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 14px;
-  transition: background-color 0.3s;
+  text-decoration: none;
 }
 
-.keyword-tag:hover {
-  background-color: #b2ebf2;
+.clickable-keyword:hover {
+  text-decoration: underline;
 }
 
 .related-videos {
