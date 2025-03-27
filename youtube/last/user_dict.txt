@@ -1,4 +1,23 @@
 # News & Politics
+신장식	NNP
+오동운	NNP
+박용진	NNP
+동앵	NNP
+일론 머스크	NNP
+문형배	NNP
+안귀령	NNP
+우크라이나	NNP
+우크라	NNP
+방탄소년단	NNP
+블랙핑크	NNP
+제니	NNP
+뉴진스	NNP
+에스파	NNP
+손흥민	NNP
+리그오브레전드	NNP
+배틀그라운드	NNP
+애플	NNP
+삼성	NNP
 우크라이나	NNP
 우크라	우크라이나/NNP
 한국	NNP	-100
