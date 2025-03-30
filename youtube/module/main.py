@@ -3,7 +3,7 @@ from store_video import store_trending_videos_with_comments
 from kiwi import make_kiwi
 from datetime import datetime, timedelta, timezone
 from mongo_connect import *
-from tokenize import tokenize_video
+from tokenize_video import tokenize_video
 from analyze import *
 CATEGORIES = {
     "News & Politics": "25",

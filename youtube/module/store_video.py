@@ -5,6 +5,8 @@ import time
 import datetime
 import isodate
 import os
+from mongo_connect import *
+
 CATEGORIES = {
     "News & Politics": "25",
     'Music' : "10",
@@ -755,7 +757,7 @@ def fetch_video_comments(video_id, max_results=100):
 
 # mongoDB에 데이터 저장하기
 def store_trending_videos_with_comments():
-    db =mg_client["howabout"]
+    db = client["raw_video_data"]
     
     formatted_videos = []  # 새로운 데이터만 저장할 리스트
     updated_count = 0  # 업데이트된 동영상 개수
