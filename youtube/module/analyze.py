@@ -3,7 +3,7 @@ import networkx as nx
 from krwordrank.word import KRWordRank
 from collections import defaultdict
 from datetime import datetime
-from mongo_connect import db
+import numpy as np
 
 def tfidf_krrank(videos, top_n=10):
     
@@ -130,54 +130,6 @@ def score_video_keywords(data):
             video["tf_kr_score"] = tf_kr_keywords_scores
         
     return data
-
-
-def combine_video_keyword_scores(data):
-    
-    for category, videos in data.items():
-        for video in videos:
-            combined_scores = {}
-            # 빈도수 기반 score
-            for keyword, score in video.get("freq_score", {}).items():
-                combined_scores[keyword] = combined_scores.get(keyword, 0) + score
-            # 텍스트랭크 기반 score
-            for keyword, score in video.get("text_score", {}).items():
-                combined_scores[keyword] = combined_scores.get(keyword, 0) + score
-            # tf-idf+KRWordRank 기반 score
-            for keyword, score in video.get("tf_kr_score", {}).items():
-                combined_scores[keyword] = combined_scores.get(keyword, 0) + score
-            
-            # 내림차순 정렬하여 combined_score에 저장
-            sorted_scores = dict(sorted(combined_scores.items(), key=lambda x: x[1], reverse=True))
-            video["combined_score"] = sorted_scores
-    
-    # MongoDB 연결 설정
-    # "video_keywords" 컬렉션이 없으면 생성
-    if "video_keywords" not in db.list_collection_names():
-        db.create_collection("video_keywords")
-    collection = db["video_keywords"]
-        
-    # ✅ 데이터 저장
-    documents = []
-    for category, videos in data.items():
-        for video in videos:
-            doc = {
-                "video_id": video.get("video_id"),
-                "category": category,
-                "timestamp": video.get("timestamp"),
-                "title": video.get("title"),
-                "view_count": video.get("view_count", 0),
-                "like_count": video.get("like_count", 0),
-                "comment_count": video.get("comment_count", 0),
-                "combined_score": video.get("combined_score", {})
-            }
-            documents.append(doc)
-
-    if documents:
-        collection.insert_many(documents)
-        print(f"✅ 총 {len(documents)}개의 키워드 분석 결과를 저장했습니다.")
-    else:
-        print("⚠️ 저장할 데이터가 없습니다.")
 
 def extract_category_keywords(data, top_n=100):
 

@@ -1,8 +1,7 @@
 from pymongo import MongoClient
 from datetime import datetime, timedelta, timezone
 from collections import defaultdict
-from store_video import *
-
+from fetch_video import *
 
 client = MongoClient("mongodb://localhost:27017")
 
@@ -15,7 +14,25 @@ CATEGORIES = {
 }
 
 
-def get_data_by_date_and_category(from_date_str, db_name, collection_name):
+def get_utc_range_from_kst_date(kst_date_str):
+    """
+    KST 기준 날짜 문자열을 받아, UTC 기준 시작/종료 시간 범위를 반환
+
+    예: '2025-03-30' → 2025-03-29T15:00:00Z ~ 2025-03-30T15:00:00Z
+    """
+    KST = timezone(timedelta(hours=9))
+
+    # 1️⃣ 입력 날짜 문자열을 datetime으로 (KST 기준)
+    start_kst = datetime.strptime(kst_date_str, "%Y-%m-%d").replace(tzinfo=KST)
+    end_kst = start_kst + timedelta(days=1)
+
+    # 2️⃣ UTC로 변환
+    start_utc = start_kst.astimezone(timezone.utc)
+    end_utc = end_kst.astimezone(timezone.utc)
+
+    return start_utc, end_utc
+
+def get_data_by_date_and_category(kst_date_str, db_name, collection_name):
     """
     지정한 날짜부터 오늘까지의 데이터를 MongoDB에서 가져오고,
     카테고리별로 그룹화하여 반환합니다.
@@ -31,31 +48,29 @@ def get_data_by_date_and_category(from_date_str, db_name, collection_name):
     db = client[db_name]
     collection = db[collection_name]
 
-    # 날짜 범위 설정 (UTC 기준)
-    start = datetime.strptime(from_date_str, '%Y-%m-%d').replace(tzinfo=timezone.utc)
-    end = datetime.now(timezone.utc)
+    start_utc, end_utc = get_utc_range_from_kst_date(kst_date_str)
 
-    # MongoDB 쿼리
+    print("쿼리 시작 시각 (UTC):", start_utc)
+    print("쿼리 종료 시각 (UTC):", end_utc)
+
     query = {
         "timestamp": {
-            "$gte": start,
-            "$lt": end
+            "$gte": start_utc,
+            "$lt": end_utc
         }
     }
 
-    result = list(collection.find(query))
+    results = list(collection.find(query))
+    print(f"📦 조회된 문서 수: {len(results)}")
 
     # 카테고리별로 그룹화
     grouped = defaultdict(list)
-    for doc in result:
+    for doc in results:
         cat_id = doc.get("metadata", {}).get("category_id")
         if cat_id:
             grouped[cat_id].append(doc)
 
     return dict(grouped)
-
-
-
 
 def store_trending_videos_with_comments(db_name, collection_name):
     
@@ -91,7 +106,6 @@ def store_trending_videos_with_comments(db_name, collection_name):
                 "comments": cleaned_comments  # 댓글 추가
             }
             collection.insert_one(document)
-        
         
 def store_combine_video_keyword_scores(data, db_name, collection_name):
     db = client[db_name]  # MongoDB 데이터베이스 이름

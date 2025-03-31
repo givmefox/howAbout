@@ -1,5 +1,4 @@
 from init import *
-from store_video import store_trending_videos_with_comments
 from kiwi import make_kiwi
 from datetime import datetime, timedelta, timezone
 from mongo_connect import *
@@ -16,23 +15,18 @@ CATEGORIES = {
 def main():
     
     # 1. 동영상 데이터 가져오고 저장하기기
-    store_trending_videos_with_comments()
+    #store_trending_videos_with_comments(db_name="raw_video_data", collection_name="raw_video_data")
     # 2. 데이터 가져오기
-    data = get_data_by_date_and_category("2024-03-29", "raw_video_data")
+    data = get_data_by_date_and_category(kst_date_str= "2025-03-31", db_name= "raw_video_data",collection_name="raw_video_data")
     # 3. kiwi 학습하기
     kiwi_objects = make_kiwi(data)
     # 4.tokenize하기
     proceesd_data = tokenize_video(data, kiwi_objects)
-    
     # 5. 키워드 점수 매기기
     scored_data = score_video_keywords(proceesd_data)
-    # 6. 키워드 점수 합치기
-    combine_video_keyword_scores(scored_data)
-    
-    
-    # 5. 데이터 조회
-    
-    kiwi_objects = make_kiwi(data)
+    # 6. 키워드 점수 합치기, 저장
+    store_combine_video_keyword_scores(db_name= "keyword", collection_name= " keyword", data = scored_data)
+
 
     
     

@@ -678,7 +678,6 @@ def clean_text(text, category):
 
     return text
 
-
 # YOUTUBE API를 통해 동영상 데이터 가져오기
 def fetch_trending_videos(category_id, max_results=200):
     
@@ -720,7 +719,7 @@ def fetch_trending_videos(category_id, max_results=200):
                 break
 
         except Exception as e:
-            print(f"Error fetching videos: {e}")
+            print(f"fetch_trending_videos : Error fetching videos: {e}")
             time.sleep(5)  # 잠시 대기 후 다시 시도
 
     return videos

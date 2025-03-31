@@ -12,3 +12,5 @@ L</a><br>	NNP
 꼬예유	NNP
 겜브링	NNP
 모양몬	NNP
+준브레드	NNP
+유기사	NNP
