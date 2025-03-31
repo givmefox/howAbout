@@ -18,7 +18,7 @@ def main():
     # 1. 동영상 데이터 가져오고 저장하기기
     store_trending_videos_with_comments()
     # 2. 데이터 가져오기
-    data = get_data_by_date_and_category("2023-10-01", "trending_videos", "video_data", "trending_videos")
+    data = get_data_by_date_and_category("2024-03-29", "raw_video_data")
     # 3. kiwi 학습하기
     kiwi_objects = make_kiwi(data)
     # 4.tokenize하기
