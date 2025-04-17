@@ -154,3 +154,47 @@ def extract_category_keywords(data, top_n=100):
         category_keywords[category] = top_category_keywords
 
     return category_keywords
+
+def combine_keyword_scores(video, weights=None):
+    """
+    freq_score, text_score, tf_kr_score를 통합하여 combined_score 생성
+    Parameters:
+        video (dict): 영상 하나의 정보
+        weights (dict): 각 스코어의 가중치 (기본값은 동일한 비율)
+            예시: {'freq': 1.0, 'text': 1.5, 'tf_kr': 2.0}
+    Returns:
+        dict: combined_score 딕셔너리
+    """
+    freq = video.get("freq_score", {})
+    text = video.get("text_score", {})
+    tfkr = video.get("tf_kr_score", {})
+
+    combined = defaultdict(float)
+
+    # 기본 가중치 설정
+    if weights is None:
+        weights = {"freq": 1.0, "text": 1.0, "tf_kr": 1.0}
+
+    for word, score in freq.items():
+        combined[word] += score * weights.get("freq", 1.0)
+    for word, score in text.items():
+        combined[word] += score * weights.get("text", 1.0)
+    for word, score in tfkr.items():
+        combined[word] += score * weights.get("tf_kr", 1.0)
+
+    return dict(combined)
+
+
+def apply_combined_scores(data, weights=None):
+    """
+    전체 데이터에 대해 combined_score 계산 후 video["combined_score"]에 저장
+    Parameters:
+        data (dict): 카테고리별 영상 데이터
+        weights (dict): 각 점수의 가중치 (선택)
+    Returns:
+        dict: combined_score가 포함된 원본 데이터
+    """
+    for category, videos in data.items():
+        for video in videos:
+            video["combined_score"] = combine_keyword_scores(video, weights)
+    return data
