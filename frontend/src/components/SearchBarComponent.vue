@@ -1,5 +1,5 @@
 <template>
-  <div class="search-bar">
+  <div class="search-bar" ref="searchBarRef">
     <input
       type="text"
       :value="searchQuery"
@@ -17,7 +17,7 @@
         @click="selectSuggestion(s)"
         :class="{ active: selectedIndex === i }"
       >
-        {{ s }}
+        🔍 {{ s }}
       </li>
     </ul>
 
@@ -35,6 +35,7 @@ const searchQuery = ref("");
 const suggestions = ref([]);
 const selectedIndex = ref(-1); // 🔥 키보드 선택용
 const router = useRouter();
+const searchBarRef = ref(null);
 const apiUrl = process.env.VUE_APP_API_URL;
 
 const isComposing = ref(false);
@@ -105,15 +106,54 @@ const handleKeyDown = (e) => {
   if (!suggestions.value.length) return;
 
   if (e.key === "ArrowDown") {
+    e.preventDefault(); // 🔹 기본 커서 이동 방지
     selectedIndex.value = (selectedIndex.value + 1) % suggestions.value.length;
   } else if (e.key === "ArrowUp") {
+    e.preventDefault();
     selectedIndex.value =
       (selectedIndex.value - 1 + suggestions.value.length) %
       suggestions.value.length;
   } else if (e.key === "Enter" && selectedIndex.value !== -1) {
+    e.preventDefault();
     selectSuggestion(suggestions.value[selectedIndex.value]);
+  } else if (e.key === "Tab" && selectedIndex.value !== -1) {
+    e.preventDefault(); // 🔥 기본 탭 동작 막기 (포커스 이동 방지)
+    const selected = suggestions.value[selectedIndex.value];
+    const keywordOnly = selected.includes(">")
+      ? selected.split(" > ")[1]
+      : selected;
+
+    const words = searchQuery.value.split(" ");
+    searchQuery.value =
+      words.length > 1 ? `${words[0]} ${keywordOnly}` : keywordOnly;
+
+    suggestions.value = []; // 리스트 닫기
+    selectedIndex.value = -1; // 인덱스 초기화
+  } else if (e.key === "Escape") {
+    suggestions.value = [];
+    selectedIndex.value = -1;
   }
 };
+
+// 🔹 외부 클릭 감지 함수
+const handleClickOutside = (e) => {
+  if (searchBarRef.value && !searchBarRef.value.contains(e.target)) {
+    suggestions.value = []; // 외부 클릭 시 자동완성 닫기
+    selectedIndex.value = -1;
+  }
+};
+
+// 🔹 mount 시 등록
+onMounted(() => {
+  window.addEventListener("keydown", handleKeyDown);
+  document.addEventListener("click", handleClickOutside); // 🔥 클릭 감지 등록
+});
+
+// 🔹 해제
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleKeyDown);
+  document.removeEventListener("click", handleClickOutside);
+});
 
 // 🔹 mount 시 이벤트 등록
 onMounted(() => {
@@ -169,6 +209,10 @@ onUnmounted(() => {
   padding: 10px 12px;
   cursor: pointer;
   transition: background 0.2s;
+  display: flex; /* 🔥 아이콘과 텍스트 나란히 */
+  align-items: center;
+  gap: 8px; /* 아이콘과 글자 사이 간격 */
+  padding-left: 20px; /* 전체적으로 살짝 더 왼쪽 */
 }
 
 .suggestions li:hover,
