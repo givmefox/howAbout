@@ -4,7 +4,8 @@ const mysql = require("./src/database/index"); // MySQL 연결
 const mongoose = require("./src/database/mongodb"); // MongoDB 연결
 const cors = require("cors");
 const app = express();
-
+const { spawn } = require("child_process");
+const path = require("path");
 const port = 3000; // 백엔드 실행 포트
 const router = require("./src/router");
 const bodyParser = require("body-parser");
@@ -95,6 +96,49 @@ app.get("/api/related-keywords", async (req, res) => {
       .status(500)
       .json({ message: "❌ 관련 키워드 데이터 불러오기 실패", error });
   }
+});
+
+app.get("/run-audio", (req, res) => {
+  const youtubeUrl = req.query.url;
+
+  if (!youtubeUrl) {
+    return res
+      .status(400)
+      .json({ error: "❌ 유튜브 URL이 필요합니다. (url=...)" });
+  }
+
+  const scriptPath = path.join(__dirname, "audio.py");
+  const python = spawn("python", [scriptPath, youtubeUrl]);
+
+  let result = "";
+  let error = "";
+
+  python.stdout.on("data", (data) => {
+    result += data.toString();
+  });
+
+  python.stderr.on("data", (data) => {
+    error += data.toString();
+    console.error("🐍 PYTHON STDERR:", data.toString());
+  });
+
+  python.on("close", (code) => {
+    if (code === 0) {
+      try {
+        res.json(JSON.parse(result));
+      } catch (e) {
+        res.status(500).json({
+          error: "❌ JSON 파싱 실패",
+          raw: result,
+        });
+      }
+    } else {
+      res.status(500).json({
+        error: "❌ Python 실행 중 오류 발생",
+        detail: error,
+      });
+    }
+  });
 });
 
 // 서버 실행

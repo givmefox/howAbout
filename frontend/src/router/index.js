@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import RegisterView from "@/views/RegisterView.vue";
 import RankingView from "@/views/RankingView.vue";
 import KeywordDetail from "@/views/KeywordDetail.vue";
+import YoutubeSummaryPage from "@/views/YoutubeSummaryPage.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -22,6 +23,11 @@ const router = createRouter({
       path: "/keyword/:keyword",
       component: KeywordDetail,
       props: true,
+    },
+    {
+      path: "/about",
+      name: "About",
+      component: YoutubeSummaryPage,
     },
   ],
   scrollBehavior(to, from, savedPosition) {

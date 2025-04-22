@@ -78,7 +78,7 @@ const goToRegister = () => {
     <div>
       <a href="/">Home</a>
       <router-link to="/Ranking">Ranking</router-link>
-      <a href="#">About</a>
+      <router-link to="/about">About</router-link>
 
       <template v-if="props.isLoggedIn">
         <span class="welcome-message">환영합니다, {{ props.username }}님!</span>
