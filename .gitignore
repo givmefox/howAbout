@@ -19,6 +19,6 @@ public/
 *.swp
 
 #작업 안한 폴더
-frontend/
-backend/
+/frontend/
+/backend/
 
