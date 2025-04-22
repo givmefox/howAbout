@@ -18,6 +18,10 @@ module.exports = defineConfig({
         secure: false,
         pathRewrite: { "^/api": "" }, // "/api"를 백엔드로 전달
       },
+      "/auth": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+      },
     },
   },
 });
