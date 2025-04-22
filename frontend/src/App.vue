@@ -1,52 +1,73 @@
-<template>
-  <Navbar />
-  <div class="main-container" v-if="$route.path !== '/register'">
-    <SearchBarComponent />
-  </div>
-  <router-view />
-</template>
-
-<script>
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import Navbar from "./components/NavbarComponent.vue";
 import SearchBarComponent from "./components/SearchBarComponent.vue";
 
-export default {
-  name: "App",
-  data() {},
-  methods: {},
-  components: {
-    Navbar,
-    SearchBarComponent,
-  },
+// 로그인 상태 전역 관리
+const isLoggedIn = ref(false);
+const username = ref("");
+const route = useRoute();
+
+// 로그인 성공 시 상태 반영
+const updateLoginState = (name) => {
+  isLoggedIn.value = true;
+  username.value = name;
 };
+
+// 앱 로드시 토큰 기반 로그인 복원
+onMounted(async () => {
+  const token = localStorage.getItem("token");
+  const savedUsername = localStorage.getItem("username");
+
+  if (token && savedUsername) {
+    isLoggedIn.value = true;
+    username.value = savedUsername;
+  } else {
+    isLoggedIn.value = false;
+    username.value = "";
+  }
+});
 </script>
 
+<template>
+  <Navbar
+    :isLoggedIn="isLoggedIn"
+    :username="username"
+    @login-success="updateLoginState"
+  />
+  <!-- SearchBar는 /register 제외 + 메인에서는 아래로 더 내려오게 -->
+  <div
+    v-if="route.path !== '/register'"
+    :class="['main-container', { 'main-home': route.path === '/' }]"
+  >
+    <SearchBarComponent />
+  </div>
+
+  <router-view />
+</template>
+
 <style>
+html,
 body {
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
 .main-container {
   display: flex;
-  justify-content: center; /* 검색창 중앙 정렬 */
+  flex-direction: column; /* 수직 정렬 */
+  justify-content: center;
   align-items: center;
-  height: 10vh; /* 높이 조정 */
+  margin-top: 20px;
 }
 
-/* 모바일 화면에서 네비게이션 스타일 변경 */
+.main-home {
+  height: 50vh; /* 메인에서만 살짝 아래로 */
+}
+
 @media screen and (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .navbar a {
-    display: block;
-    margin-bottom: 10px;
-  }
-
   .main-container {
     flex-direction: column;
     height: auto;

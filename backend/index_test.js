@@ -9,6 +9,8 @@ const port = 3000; // 백엔드 실행 포트
 const router = require("./src/router");
 const bodyParser = require("body-parser");
 const mongoRoutes = require("./routes/mongoRoute"); // MongoDB 라우트
+const authRoutes = require("./routes/authRoutes.js");
+app.use("/auth", authRoutes); // 이게 있어야 /auth/login 가능함
 
 app.use(
   cors({

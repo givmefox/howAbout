@@ -52,12 +52,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
+import { nextTick } from "vue";
 import axios from "axios";
+import { useRoute, useRouter } from "vue-router";
 
+const route = useRoute();
+const router = useRouter();
 // 상태 변수
 const keywordsByCategory = ref({});
-const selectedCategory = ref("News & Politics");
+const selectedCategory = ref(route.query.category || "News & Politics");
 const loading = ref(true); // 데이터 로딩 여부
 const apiUrl = process.env.VUE_APP_API_URL;
 
@@ -90,6 +94,31 @@ onMounted(fetchKeywords);
 const filteredKeywords = computed(() => {
   return keywordsByCategory.value[selectedCategory.value]?.slice(0, 50) || [];
 });
+
+// selectedCategory가 변경될 때마다 URL 쿼리 갱신
+watch(selectedCategory, (newCategory) => {
+  router.replace({
+    query: { ...route.query, category: newCategory },
+  });
+});
+
+// 컴포넌트가 마운트될 때 API 호출
+onMounted(async () => {
+  await fetchKeywords();
+
+  // ✅ 데이터를 다 불러오고 DOM이 렌더링된 뒤에 수동으로 스크롤 복원 요청
+  await nextTick(); // DOM 업데이트 기다리기
+
+  // savedPosition이 있는 경우에만 복원
+  if ("scrollRestoration" in history) {
+    // 이건 일부 브라우저가 자동으로 scrollRestoration=manual 일 때만 적용되기도 함
+    window.scrollTo({
+      top: history.state?.scroll?.top || 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }
+});
 </script>
 
 <style scoped>
@@ -104,10 +133,18 @@ const filteredKeywords = computed(() => {
 }
 
 .filter-container select {
-  padding: 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='black' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E")
+    no-repeat right 10px center;
+  background-color: white;
+  background-size: 10px 6px;
+  padding: 10px 30px 10px 10px; /* 오른쪽 패딩 조정 */
   font-size: 16px;
   border: 1px solid #ddd;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 .loading {
