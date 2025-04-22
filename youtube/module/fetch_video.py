@@ -680,8 +680,7 @@ def clean_text(text, category):
 
 # YOUTUBE API를 통해 동영상 데이터 가져오기
 def fetch_trending_videos(category_id, max_results=200):
-    
-    region_code="KR"
+    region_code = "KR"
     videos = []
     next_page_token = None
 
@@ -699,9 +698,12 @@ def fetch_trending_videos(category_id, max_results=200):
 
             for item in response.get("items", []):
                 duration = isodate.parse_duration(item["contentDetails"]["duration"])
-                duration_in_seconds = duration.total_seconds()  #초로 바꾸기기
+                duration_in_seconds = duration.total_seconds()
 
-                if duration_in_seconds > 90:  # 80초 이상의 동영상만 가져오기
+                if duration_in_seconds > 90:
+                    upload_time_str = item["snippet"]["publishedAt"]
+                    upload_time = datetime.fromisoformat(upload_time_str.replace("Z", "+00:00"))
+
                     videos.append({
                         "video_id": item["id"],
                         "title": item["snippet"]["title"],
@@ -712,6 +714,7 @@ def fetch_trending_videos(category_id, max_results=200):
                         "like_count": int(item["statistics"].get("likeCount", 0)),
                         "comment_count": int(item["statistics"].get("commentCount", 0)),
                         "category_id": category_id,
+                        "published_at": upload_time.isoformat()  # 또는 그냥 upload_time 사용
                     })
 
             next_page_token = response.get("nextPageToken")
@@ -720,7 +723,7 @@ def fetch_trending_videos(category_id, max_results=200):
 
         except Exception as e:
             print(f"fetch_trending_videos : Error fetching videos: {e}")
-            time.sleep(5)  # 잠시 대기 후 다시 시도
+            time.sleep(5)
 
     return videos
 

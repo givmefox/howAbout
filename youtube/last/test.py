@@ -1258,7 +1258,6 @@ def textrank_keywords(tokens, window_size=4, top_n=10):
     sorted_tokens = sorted(ranks.items(), key=lambda x: x[1], reverse=True)
     top_keywords = [word for word, score in sorted_tokens[:top_n]]
     return top_keywords
-
 def score_video_keywords(input_file, output_file):
     data = load_json(input_file)
     

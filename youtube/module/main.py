@@ -17,7 +17,7 @@ def main():
     # 1. 동영상 데이터 가져오고 저장하기기
     #store_trending_videos_with_comments(db_name="raw_video_data", collection_name="raw_video_data")
     # 2. 데이터 가져오기
-    data = get_data_by_date_and_category(kst_date_str= "2025-04-17", db_name= "raw_video_data",collection_name="raw_video_data")
+    data = get_data_by_date_and_category(kst_date_str= "2025-04-23", db_name= "raw_video_data",collection_name="raw_video_data")
     # 3. kiwi 학습하기
     kiwi_objects = make_kiwi(data)
     # 4.tokenize하기
@@ -25,7 +25,7 @@ def main():
     # 5. 키워드 점수 매기기
     scored_data = score_video_keywords(proceesd_data)
     # 6. 키워드 점수 합치기, 저장
-    store_combine_video_keyword_scores(db_name= "keyword", collection_name= " keyword", data = scored_data)
+    store_combine_video_keyword_scores(db_name= "keyword", collection_name= "keyword", data = scored_data)
 
 
     

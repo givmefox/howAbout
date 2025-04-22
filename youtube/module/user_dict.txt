@@ -1,5 +1,4 @@
 # News & Politics
-<<<<<<< HEAD
 신장식	NNP
 오동운	NNP
 박용진	NNP
@@ -19,8 +18,6 @@
 배틀그라운드	NNP
 애플	NNP
 삼성	NNP
-=======
->>>>>>> jihun
 우크라이나	NNP
 우크라	우크라이나/NNP
 한국	NNP	-100
@@ -1182,3 +1179,15 @@ z플립 6	NNP
 민희진	NNP
 채스터	NNP
 유기사	NNP
+님님님님님님	NNP
+님님님님님님님	NNP
+님님님님님	NNP
+님님님님님님님님	NNP
+님님님님님님님님님	NNP
+님님님님	NNP
+하하하하하하하하하	NNP
+하하하하하하하하	NNP
+하하하하하하하	NNP
+하하하하하하	NNP
+카푸카푸	NNP
+가짜야가짜야가짜야	NNP
