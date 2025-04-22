@@ -17,3 +17,8 @@ public/
 .DS_Store
 .idea/
 *.swp
+
+#작업 안한 폴더
+frontend/
+backend/
+
