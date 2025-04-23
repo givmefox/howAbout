@@ -146,6 +146,7 @@ def store_combine_video_keyword_scores(data, db_name, collection_name):
                 "view_count": video.get("view_count", 0),
                 "like_count": video.get("like_count", 0),
                 "comment_count": video.get("comment_count", 0),
+                "published_at": video.get("published_at"),
                 "combined_score": video.get("combined_score", {})
             }
             documents.append(doc)
