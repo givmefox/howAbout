@@ -21,16 +21,10 @@
       <h3>📄 요약 결과</h3>
       <p class="summary">{{ result.summary_text }}</p>
 
-      <h4>🔑 키워드</h4>
+      <!-- <h4>🔑 키워드</h4>
       <ul>
         <li v-for="(kw, i) in extractedKeywords" :key="i">#{{ kw }}</li>
-      </ul>
-
-      <div class="info">
-        <p>입력 토큰 수: {{ result.input_tokens }}</p>
-        <p>출력 토큰 수: {{ result.output_tokens }}</p>
-        <p>예상 비용: ${{ result.estimated_cost }}</p>
-      </div>
+      </ul> -->
     </div>
 
     <div v-if="error" class="error">{{ error }}</div>
@@ -73,6 +67,8 @@ export default {
           params: { url: this.youtubeUrl },
         });
         this.result = response.data;
+        console.log("✅ response:", response);              // 전체 응답 객체
+        console.log("✅ response.data:", response.data);    // JSON 결과만
       } catch (err) {
         this.error = err.response?.data?.error || "요청 실패";
       } finally {

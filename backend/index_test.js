@@ -108,13 +108,15 @@ app.get("/run-audio", (req, res) => {
   }
 
   const scriptPath = path.join(__dirname, "audio.py");
-  const python = spawn("python", [scriptPath, youtubeUrl]);
+  const python = spawn("../youtube/.venv/Scripts/python.exe", [scriptPath, youtubeUrl]);
 
+  
   let result = "";
   let error = "";
 
   python.stdout.on("data", (data) => {
     result += data.toString();
+    console.log("✅ PYTHON STDOUT (raw):", result)
   });
 
   python.stderr.on("data", (data) => {

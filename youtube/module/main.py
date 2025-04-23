@@ -27,8 +27,6 @@ def main():
     # 6. 키워드 점수 합치기, 저장
     store_combine_video_keyword_scores(db_name= "keyword", collection_name= "keyword", data = scored_data)
 
-
-    
     
 if __name__ == "__main__":
     main()

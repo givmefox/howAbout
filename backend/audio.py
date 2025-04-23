@@ -3,7 +3,15 @@ import os
 from openai import OpenAI
 import tiktoken
 from dotenv import load_dotenv
+import sys
+import io
 
+sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding='utf-8')
+
+class MyLogger:
+    def debug(self, msg): pass
+    def warning(self, msg): pass
+    def error(self, msg): print(msg, file=sys.stderr)
 
 # OpenAI 클라이언트 초기화 (API 키는 환경변수에서 읽기)
 load_dotenv()
@@ -16,10 +24,12 @@ def download_audio_if_short(url, save_dir="audios"):
 
     # 메타데이터 먼저 추출 (길이 확인용)
     ydl_opts_metadata = {
-        'quiet': True,
-        'skip_download': True,
-        'format': 'bestaudio/best',
-    }
+    'quiet': True,            # 👈 일반 로그 제거
+    'skip_download': True,
+    'format': 'bestaudio/best',
+    'no_warnings': True,      # 👈 경고 제거
+    'logger': MyLogger(),     # 👈 stdout 로그 제거용 커스텀 logger 설정
+}
 
     with yt_dlp.YoutubeDL(ydl_opts_metadata) as ydl:
         info = ydl.extract_info(url, download=False)
@@ -28,28 +38,29 @@ def download_audio_if_short(url, save_dir="audios"):
         video_id = info.get("id")
 
     if duration > 900:  # 15분 초과
-        print("⛔ 15분 이상 동영상은 지원하지 않습니다.")
+        print(" 15분 이상 동영상은 지원하지 않습니다.", file=sys.stderr)
         return None
 
     # 오디오 다운로드 설정
     output_path = os.path.join(save_dir, f"{video_id}.%(ext)s")
 
     ydl_opts_download = {
-        'format': 'bestaudio/best',
-        'outtmpl': output_path,
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'quiet': True,
-    }
+    'format': 'bestaudio/best',
+    'outtmpl': output_path,
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }],
+    'quiet': True,
+    'no_warnings': True,
+    'logger': MyLogger(),     # 👈 여기도 logger 설정
+}
 
     with yt_dlp.YoutubeDL(ydl_opts_download) as ydl:
         ydl.download([url])
 
     mp3_path = os.path.join(save_dir, f"{video_id}.mp3")
-    print(f"✅ 오디오 다운로드 완료: {mp3_path}")
     return mp3_path
 
 
@@ -66,7 +77,7 @@ def transcribe_with_whisper_api(audio_path: str, language: str = "ko") -> str:
         str: 변환된 텍스트 (자막)
     """
     if not os.path.exists(audio_path):
-        raise FileNotFoundError(f"❌ 파일을 찾을 수 없습니다: {audio_path}")
+        raise FileNotFoundError(f" 파일을 찾을 수 없습니다: {audio_path}")
     
     with open(audio_path, "rb") as audio_file:
         response = client.audio.transcriptions.create(
@@ -101,11 +112,12 @@ def summarize_youtube_text(text: str, model: str = "gpt-4-turbo") -> dict:
     """
 
     prompt = f"""
-다음은 유튜브 방송의 전체 텍스트야.
-오타가 조금 많으니 너가 알아서 고쳐주고,
-전체적인 내용을 3줄로 요약해주고,
-중요한 키워드 5개를 뽑아줘.
-가장 중요한 키워드부터 순서대로 나열해줘.
+    너는 요약의 천재야.
+    아래의 긴 텍스트를 요약해줘.
+    요약은 3문장으로 해줘.
+    그리고 키워드 5개를 뽑아줘.
+    세줄 요약 앞에 번호를 붙여줘.
+    그리고 키워드 앞에도 번호를 붙여줘.
 
 {text}
     """.strip()
@@ -124,16 +136,14 @@ def summarize_youtube_text(text: str, model: str = "gpt-4-turbo") -> dict:
 
     return {
         "summary_text": reply,
-        "input_tokens": input_tokens,
-        "output_tokens": output_tokens,
-        "estimated_cost": round(estimated_cost, 5)
+        
     }
     
 if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print("audio.py : 유튜브 링크가 필요합니다.")
+        print("audio.py : 유튜브 링크가 필요합니다.", file=sys.stderr)
         sys.exit(1)
 
     url = sys.argv[1]
@@ -141,7 +151,7 @@ if __name__ == "__main__":
     # 1. 오디오 다운로드
     audio_path = download_audio_if_short(url)
     if not audio_path:
-        print("audio.py : 오디오 다운로드 실패 또는 15분 초과")
+        print("audio.py : 오디오 다운로드 실패 또는 15분 초과", file=sys.stderr)
         sys.exit(1)
 
     # 2. Whisper 전사
@@ -152,4 +162,5 @@ if __name__ == "__main__":
 
     # 4. 요약 결과 출력 (JSON으로 반환)
     import json
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    print(json.dumps(result, ensure_ascii=False))
+    
