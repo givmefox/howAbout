@@ -103,6 +103,8 @@ def store_trending_videos_with_comments(db_name, collection_name):
                 "view_count": video["view_count"],
                 "like_count": video["like_count"],
                 "comment_count": video["comment_count"],
+                "published_at": video["published_at"],
+                "subscriber_count": video["subscriber_count"],
                 "comments": cleaned_comments  # 댓글 추가
             }
             collection.insert_one(document)
@@ -147,6 +149,7 @@ def store_combine_video_keyword_scores(data, db_name, collection_name):
                 "like_count": video.get("like_count", 0),
                 "comment_count": video.get("comment_count", 0),
                 "published_at": video.get("published_at"),
+                "subscriber_count": video.get("subscriber_count", 0),
                 "combined_score": video.get("combined_score", {})
             }
             documents.append(doc)

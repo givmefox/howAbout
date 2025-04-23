@@ -28,7 +28,7 @@ def run_ranking(start_date, end_date):
             published_str = doc.get("published_at")
             timestamp = doc.get("timestamp")
             combined_score = doc.get("combined_score", {})
-            print(f"category: {category}, view_count: {view_count}, published_str: {published_str}, timestamp: {timestamp}, combined_score: {combined_score}",flush=True)  # 👉 여기 로그 추가
+            
 
             # 👉 여기 로그 추가
             if not (category and published_str and timestamp and combined_score):
@@ -66,6 +66,6 @@ def run_ranking(start_date, end_date):
             adjusted = total / (count ** alpha)
             keyword_list.append({"keyword": keyword, "score": round(adjusted, 2)})
         keyword_list.sort(key=lambda x: x["score"], reverse=True)
-        result[category] = keyword_list[:100]
+        result[category] = keyword_list[:50]
 
     print(json.dumps(result, ensure_ascii=False))  # stdout으로 출력
