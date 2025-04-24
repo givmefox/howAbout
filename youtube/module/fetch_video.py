@@ -704,6 +704,18 @@ def fetch_trending_videos(category_id, max_results=200):
                     upload_time_str = item["snippet"]["publishedAt"]
                     upload_time = datetime.fromisoformat(upload_time_str.replace("Z", "+00:00"))
 
+                    # ✅ 채널 ID로 구독자 수 가져오기
+                    channel_id = item["snippet"]["channelId"]
+                    try:
+                        channel_response = youtube.channels().list(
+                            part="statistics",
+                            id=channel_id
+                        ).execute()
+                        subscriber_count = int(channel_response["items"][0]["statistics"].get("subscriberCount", 0))
+                    except Exception as e:
+                        print(f"⚠️ 구독자 수 조회 실패 ({channel_id}): {e}")
+                        subscriber_count = None
+
                     videos.append({
                         "video_id": item["id"],
                         "title": item["snippet"]["title"],
@@ -714,7 +726,8 @@ def fetch_trending_videos(category_id, max_results=200):
                         "like_count": int(item["statistics"].get("likeCount", 0)),
                         "comment_count": int(item["statistics"].get("commentCount", 0)),
                         "category_id": category_id,
-                        "published_at": upload_time.isoformat()  # 또는 그냥 upload_time 사용
+                        "published_at": upload_time.isoformat(),
+                        "subscriber_count": subscriber_count  # ✅ 추가됨
                     })
 
             next_page_token = response.get("nextPageToken")
