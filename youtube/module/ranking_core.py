@@ -2,10 +2,11 @@ import json
 from pymongo import MongoClient
 from collections import defaultdict
 from datetime import datetime
+import sys
 
 def run_ranking(start_date, end_date):
-    
-    print(f"📆 조회 구간: {start_date} ~ {end_date}", flush=True)
+
+    #print(f"📆 조회 구간: {start_date} ~ {end_date}",file=sys.stderr)
     
     client = MongoClient("mongodb://localhost:27017/")
     collection = client["keyword"]["keyword"]
@@ -19,7 +20,7 @@ def run_ranking(start_date, end_date):
         "timestamp": {"$gte": start_date, "$lt": end_date}
     }
     count = collection.count_documents(query)
-    print(f"🔍 해당 구간 문서 수: {count}", flush=True)
+    #print(f"🔍 해당 구간 문서 수: {count}", flush=True)
 
     for doc in collection.find(query):
         try:
@@ -32,7 +33,7 @@ def run_ranking(start_date, end_date):
 
             # 👉 여기 로그 추가
             if not (category and published_str and timestamp and combined_score):
-                print(f"⚠️ 누락 필드 있음 → {doc.get('_id')}")
+                print(f"⚠️ 누락 필드 있음 → {doc.get('_id')}",file=sys.stderr)
                 skipped += 1
                 continue
 
