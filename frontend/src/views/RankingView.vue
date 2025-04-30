@@ -1,10 +1,8 @@
 <template>
   <div>
-    <!-- 메인 콘텐츠 -->
     <div class="centered-content">
       <h2 style="color: #ff0000">🔥 유튜브 인기 키워드 랭킹 🔥</h2>
 
-      <!-- 필터 섹션 -->
       <div class="filter-container">
         <label for="category-filter">카테고리 : </label>
         <select id="category-filter" v-model="selectedCategory">
@@ -14,12 +12,17 @@
           <option value="Gaming">게임</option>
           <option value="Science & Technology">과학 및 기술</option>
         </select>
+
+        <label for="period-filter" style="margin-left: 20px">기간 : </label>
+        <select id="period-filter" v-model="selectedPeriod">
+          <option value="today">오늘</option>
+          <option value="week">이번 주</option>
+          <option value="month">이번 달</option>
+        </select>
       </div>
 
-      <!-- 로딩 표시 -->
       <div v-if="loading" class="loading">데이터 불러오는 중...</div>
 
-      <!-- 랭킹 테이블 -->
       <div v-else class="hashtags">
         <table>
           <thead>
@@ -59,26 +62,45 @@ import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
-// 상태 변수
 const keywordsByCategory = ref({});
 const selectedCategory = ref(route.query.category || "News & Politics");
-const loading = ref(true); // 데이터 로딩 여부
+const selectedPeriod = ref(route.query.period || "today");
+const loading = ref(true);
 const apiUrl = process.env.VUE_APP_API_URL;
 
-// API에서 데이터 가져오기
+// ✅ 카테고리 ID → 이름 매핑
+const categoryMap = {
+  25: "News & Politics",
+  10: "Music",
+  17: "Sports",
+  20: "Gaming",
+  28: "Science & Technology",
+};
+
+const mapCategoryIdToName = (id) => {
+  return categoryMap[id] || "기타";
+};
+
 const fetchKeywords = async () => {
+  loading.value = true;
   try {
-    const response = await axios.get(`${apiUrl}/api/mongo-category-keywords`);
-    if (response.data && response.data.data) {
-      // 데이터를 카테고리별로 변환
-      keywordsByCategory.value = response.data.data.reduce((acc, item) => {
-        acc[item.category] = item.ranked_keywords.map((keyword) => ({
-          rank: keyword.순위,
-          name: keyword.키워드,
-          category: item.category,
-        }));
-        return acc;
-      }, {});
+    const response = await axios.get(
+      `${apiUrl}/api/ranking/${selectedPeriod.value}`
+    );
+    if (response.data) {
+      const result = response.data;
+      keywordsByCategory.value = {};
+
+      for (const categoryId in result) {
+        const categoryName = mapCategoryIdToName(categoryId);
+        keywordsByCategory.value[categoryName] = result[categoryId].map(
+          (item, index) => ({
+            rank: index + 1,
+            name: item.keyword,
+            category: categoryName,
+          })
+        );
+      }
     }
   } catch (error) {
     console.error("❌ 데이터 불러오기 실패:", error);
@@ -87,31 +109,36 @@ const fetchKeywords = async () => {
   }
 };
 
-// 컴포넌트가 마운트될 때 API 호출
 onMounted(fetchKeywords);
 
-// 카테고리 필터링
+// ✅ 카테고리 또는 기간이 바뀌면 다시 fetch
+watch(selectedPeriod, async (newPeriod) => {
+  router.replace({
+    query: {
+      ...route.query,
+      category: selectedCategory.value,
+      period: newPeriod,
+    },
+  });
+  await fetchKeywords();
+  await nextTick(); // ✅ 데이터 갱신 후 DOM 업데이트 기다리기
+  if ("scrollRestoration" in history) {
+    window.scrollTo({
+      top: history.state?.scroll?.top || 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }
+});
+
 const filteredKeywords = computed(() => {
   return keywordsByCategory.value[selectedCategory.value]?.slice(0, 50) || [];
 });
 
-// selectedCategory가 변경될 때마다 URL 쿼리 갱신
-watch(selectedCategory, (newCategory) => {
-  router.replace({
-    query: { ...route.query, category: newCategory },
-  });
-});
-
-// 컴포넌트가 마운트될 때 API 호출
 onMounted(async () => {
   await fetchKeywords();
-
-  // ✅ 데이터를 다 불러오고 DOM이 렌더링된 뒤에 수동으로 스크롤 복원 요청
-  await nextTick(); // DOM 업데이트 기다리기
-
-  // savedPosition이 있는 경우에만 복원
+  await nextTick();
   if ("scrollRestoration" in history) {
-    // 이건 일부 브라우저가 자동으로 scrollRestoration=manual 일 때만 적용되기도 함
     window.scrollTo({
       top: history.state?.scroll?.top || 0,
       left: 0,
@@ -140,11 +167,12 @@ onMounted(async () => {
     no-repeat right 10px center;
   background-color: white;
   background-size: 10px 6px;
-  padding: 10px 30px 10px 10px; /* 오른쪽 패딩 조정 */
+  padding: 10px 30px 10px 10px;
   font-size: 16px;
   border: 1px solid #ddd;
   border-radius: 5px;
   cursor: pointer;
+  margin-right: 10px;
 }
 
 .loading {

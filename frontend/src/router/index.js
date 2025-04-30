@@ -29,6 +29,11 @@ const router = createRouter({
       name: "About",
       component: YoutubeSummaryPage,
     },
+    {
+      path: "/ranking",
+      name: "Ranking",
+      component: () => import("@/views/RankingView.vue"),
+    },
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

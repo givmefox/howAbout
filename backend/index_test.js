@@ -11,6 +11,9 @@ const router = require("./src/router");
 const bodyParser = require("body-parser");
 const mongoRoutes = require("./routes/mongoRoute"); // MongoDB 라우트
 const authRoutes = require("./routes/authRoutes.js");
+const fs = require("fs");
+const rankingRoutes = require("./routes/rankingRoute");
+
 app.use("/auth", authRoutes); // 이게 있어야 /auth/login 가능함
 
 app.use(
@@ -20,6 +23,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use("/api", rankingRoutes);
 // JSON 형식의 데이터 처리
 app.use(bodyParser.json());
 // URL 인코딩 된 데이터 처리
@@ -108,15 +113,17 @@ app.get("/run-audio", (req, res) => {
   }
 
   const scriptPath = path.join(__dirname, "audio.py");
-  const python = spawn("../youtube/.venv/Scripts/python.exe", [scriptPath, youtubeUrl]);
+  const python = spawn("../youtube/.venv/Scripts/python.exe", [
+    scriptPath,
+    youtubeUrl,
+  ]);
 
-  
   let result = "";
   let error = "";
 
   python.stdout.on("data", (data) => {
     result += data.toString();
-    console.log("✅ PYTHON STDOUT (raw):", result)
+    console.log("✅ PYTHON STDOUT (raw):", result);
   });
 
   python.stderr.on("data", (data) => {
@@ -139,6 +146,41 @@ app.get("/run-audio", (req, res) => {
         error: "❌ Python 실행 중 오류 발생",
         detail: error,
       });
+    }
+  });
+});
+
+app.get("/api/keyword-detail/:keyword", (req, res) => {
+  const keyword = decodeURIComponent(req.params.keyword);
+  const jsonPath = path.join(__dirname, "../youtube/test/graded_keywords.json");
+
+  fs.readFile(jsonPath, "utf-8", (err, data) => {
+    if (err) {
+      console.error("❌ JSON 파일 읽기 실패:", err);
+      return res.status(500).json({ error: "서버 내부 오류" });
+    }
+
+    try {
+      const parsed = JSON.parse(data);
+
+      let found = null;
+      for (const category in parsed) {
+        if (parsed[category][keyword]) {
+          found = parsed[category][keyword];
+          break;
+        }
+      }
+
+      if (found) {
+        res.json(found);
+      } else {
+        res
+          .status(404)
+          .json({ error: "해당 키워드 분석 결과를 찾을 수 없습니다." });
+      }
+    } catch (e) {
+      console.error("❌ JSON 파싱 실패:", e);
+      res.status(500).json({ error: "JSON 파싱 오류" });
     }
   });
 });
