@@ -133,7 +133,7 @@ const fetchKeywordDetails = async () => {
 
     // 연관 키워드 수정
     const relatedResponse = await axios.get(
-      `${apiUrl}/api/related`,
+      `${apiUrl}/api/related-keywords`,
       { 
         params: { keyword: keyword.value } 
       }
@@ -143,21 +143,35 @@ const fetchKeywordDetails = async () => {
       keyword: item,
     }));
 
+    // const videoResponse = await axios.get(
+    //   `${apiUrl}/api/mongo-keyword-videos`,
+    //   {
+    //     params: { keyword: keyword.value },
+    //   }
+    // );
+    // videos.value = videoResponse.data.data
+    //   .filter((item) => item.keyword === keyword.value)
+    //   .flatMap((item) =>
+    //     item.videos.map((video) => ({
+    //       video_id: video.video_id,
+    //       title: video.title,
+    //       score: video.score,
+    //     }))
+    //   );
+    
+
+    // ✅ 연관 인기 동영상 가져오기 (related_video_runner.py 실행 결과)
     const videoResponse = await axios.get(
-      `${apiUrl}/api/mongo-keyword-videos`,
+      `${apiUrl}/api/keywords-popular-videos`,
       {
         params: { keyword: keyword.value },
       }
     );
-    videos.value = videoResponse.data.data
-      .filter((item) => item.keyword === keyword.value)
-      .flatMap((item) =>
-        item.videos.map((video) => ({
-          video_id: video.video_id,
-          title: video.title,
-          score: video.score,
-        }))
-      );
+    videos.value = videoResponse.data.data.map((video) => ({
+      video_id: video.video_id,
+      title: video.title,
+      score: video.score,
+    }));
 
     const detailResponse = await axios.get(
       `${apiUrl}/api/keyword-detail/${encodeURIComponent(keyword.value)}`

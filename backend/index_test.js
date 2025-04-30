@@ -69,51 +69,93 @@ app.get("/mongo-test", async (req, res) => {
   }
 });
 
-app.get("/api/keywords-popular-videos", async (req, res) => {
-  try {
-    const videos = await mongoose.connection.db
-      .collection("keywords_popular_videos")
-      .find()
-      .toArray();
-    res.json({
-      message: "✅ 키워드 인기 영상 데이터 불러오기 성공",
-      data: videos,
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "❌ 키워드 인기 영상 데이터 불러오기 실패", error });
+//연관 동영상 가져오기 수정
+app.get("/api/keywords-popular-videos", (req, res) => {
+  const keyword = req.query.keyword;
+  if (!keyword) {
+    return res.status(400).json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
   }
+
+  const pythonPath = "../youtube/.venv/Scripts/python.exe"; // ✅ 윈도우용 파이썬 경로
+  const scriptPath = path.join(__dirname, "related_video_runner.py");
+
+  const py = spawn(pythonPath, [scriptPath, keyword]);
+  py.stdout.setEncoding("utf8"); // ✅ 이 줄 추가!
+
+  let output = "";
+  let error = "";
+
+  py.stdout.on("data", (data) => {
+    output += data.toString();
+  });
+
+  py.stderr.on("data", (data) => {
+    error += data.toString();
+  });
+
+  py.on("close", (code) => {
+    if (code !== 0) {
+      console.error("🐍 Python 오류:", error);
+      return res.status(500).json({ error: "❌ Python 실행 실패", detail: error });
+    }
+
+    try {
+      const parsed = JSON.parse(output);
+      res.json({ data: parsed });
+    } catch (e) {
+      res.status(500).json({ error: "❌ JSON 파싱 실패", raw: output });
+    }
+  });
 });
 
-app.get("/api/related-keywords", async (req, res) => {
-  try {
-    const relatedKeywords = await mongoose.connection.db
-      .collection("related_keywords")
-      .find()
-      .toArray();
-    res.json({
-      message: "✅ 관련 키워드 데이터 불러오기 성공",
-      data: relatedKeywords,
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "❌ 관련 키워드 데이터 불러오기 실패", error });
-  }
-});
+
+// app.get("/api/keywords-popular-videos", async (req, res) => {
+//   try {
+//     const videos = await mongoose.connection.db
+//       .collection("keywords_popular_videos")
+//       .find()
+//       .toArray();
+//     res.json({
+//       message: "✅ 키워드 인기 영상 데이터 불러오기 성공",
+//       data: videos,
+//     });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: "❌ 키워드 인기 영상 데이터 불러오기 실패", error });
+//   }
+// });
+
+// app.get("/api/related-keywords", async (req, res) => {
+//   try {
+//     const relatedKeywords = await mongoose.connection.db
+//       .collection("related_keywords")
+//       .find()
+//       .toArray();
+//     res.json({
+//       message: "✅ 관련 키워드 데이터 불러오기 성공",
+//       data: relatedKeywords,
+//     });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: "❌ 관련 키워드 데이터 불러오기 실패", error });
+//   }
+// });
 // 연관 키워드 수정
+
 app.get("/api/related-keywords", (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
     return res.status(400).json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
   }
 
-  // ✅ 실행할 Python 파일 경로
+  // ✅ 윈도우용 Python 가상환경 실행 경로
+  const pythonPath = "../youtube/.venv/Scripts/python.exe";
   const scriptPath = path.join(__dirname, "related_ngram_runner.py");
 
-  // ✅ Python 프로세스 실행
-  const py = spawn("python", [scriptPath, keyword]);
+  const py = spawn(pythonPath, [scriptPath, keyword]);
+  py.stdout.setEncoding("utf8"); // ✅ 이 줄 추가!
 
   let output = "";
   let error = "";
@@ -140,6 +182,7 @@ app.get("/api/related-keywords", (req, res) => {
     }
   });
 });
+
 
 app.get("/run-audio", (req, res) => {
   const youtubeUrl = req.query.url;

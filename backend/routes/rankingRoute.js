@@ -51,12 +51,7 @@ function runPythonScript(scriptName) {
   });
 }
 
-
-
 //api
-
-
-
 router.get("/ranking/:period", async (req, res) => {
   const period = req.params.period;
   const cache = rankingCache[period];
