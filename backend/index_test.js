@@ -102,6 +102,44 @@ app.get("/api/related-keywords", async (req, res) => {
       .json({ message: "❌ 관련 키워드 데이터 불러오기 실패", error });
   }
 });
+// 연관 키워드 수정
+app.get("/api/related-keywords", (req, res) => {
+  const keyword = req.query.keyword;
+  if (!keyword) {
+    return res.status(400).json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
+  }
+
+  // ✅ 실행할 Python 파일 경로
+  const scriptPath = path.join(__dirname, "related_ngram_runner.py");
+
+  // ✅ Python 프로세스 실행
+  const py = spawn("python", [scriptPath, keyword]);
+
+  let output = "";
+  let error = "";
+
+  py.stdout.on("data", (data) => {
+    output += data.toString();
+  });
+
+  py.stderr.on("data", (data) => {
+    error += data.toString();
+  });
+
+  py.on("close", (code) => {
+    if (code !== 0) {
+      console.error("🐍 Python 오류:", error);
+      return res.status(500).json({ error: "❌ Python 실행 실패", detail: error });
+    }
+
+    try {
+      const parsed = JSON.parse(output);
+      res.json({ related: parsed });
+    } catch (e) {
+      res.status(500).json({ error: "❌ JSON 파싱 실패", raw: output });
+    }
+  });
+});
 
 app.get("/run-audio", (req, res) => {
   const youtubeUrl = req.query.url;

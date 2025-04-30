@@ -115,21 +115,33 @@ const keywordHeaders = [
 
 const fetchKeywordDetails = async () => {
   try {
+    // const relatedResponse = await axios.get(
+    //   `${apiUrl}/api/related-keywords`,
+    //   {
+    //     params: { keyword: keyword.value },
+    //   }
+    // );
+    // const keywordData = relatedResponse.data.data.find(
+    //   (item) => item.keyword === keyword.value
+    // );
+    // relatedKeywordsTable.value = (keywordData?.related || []).map(
+    //   (item, index) => ({
+    //     rank: index + 1,
+    //     keyword: item,
+    //   })
+    // );
+
+    // 연관 키워드 수정
     const relatedResponse = await axios.get(
-      `${apiUrl}/api/mongo-related-keywords`,
-      {
-        params: { keyword: keyword.value },
+      `${apiUrl}/api/related`,
+      { 
+        params: { keyword: keyword.value } 
       }
     );
-    const keywordData = relatedResponse.data.data.find(
-      (item) => item.keyword === keyword.value
-    );
-    relatedKeywordsTable.value = (keywordData?.related || []).map(
-      (item, index) => ({
-        rank: index + 1,
-        keyword: item,
-      })
-    );
+    relatedKeywordsTable.value = relatedResponse.data.related.map((item, index) => ({
+      rank: index + 1,
+      keyword: item,
+    }));
 
     const videoResponse = await axios.get(
       `${apiUrl}/api/mongo-keyword-videos`,
