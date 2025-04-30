@@ -89,17 +89,7 @@ def transcribe_with_whisper_api(audio_path: str, language: str = "ko") -> str:
 
     return response
 
-
-# 💰 요금 기준 (2025년 GPT-4 Turbo 기준)
-COST_PER_1K_INPUT = 0.01
-COST_PER_1K_OUTPUT = 0.03
-
-def count_tokens(text, model="gpt-4-turbo"):
-    """입력 텍스트의 토큰 수 계산"""
-    encoding = tiktoken.encoding_for_model(model)
-    return len(encoding.encode(text))
-
-def summarize_youtube_text(text: str, model: str = "gpt-4-turbo") -> dict:
+def summarize_youtube_text(text: str, model: str = "gpt-4.1") -> dict:
     """
     GPT-4 Turbo로 유튜브 전체 텍스트를 요약하고 키워드를 추출합니다.
 
@@ -114,15 +104,15 @@ def summarize_youtube_text(text: str, model: str = "gpt-4-turbo") -> dict:
     prompt = f"""
     너는 요약의 천재야.
     아래의 긴 텍스트를 요약해줘.
-    요약은 3문장으로 해줘.
-    그리고 키워드 5개를 뽑아줘.
+    전체 내용을 3문장으로 요약약해줘.
+    3문장은 너무 길지 않게 해줘. 앞에 숫자를 붙여줘
+    그리고 핵심 키워드 5개를 뽑아줘.
     세줄 요약 앞에 번호를 붙여줘.
     그리고 키워드 앞에도 번호를 붙여줘.
 
 {text}
     """.strip()
 
-    input_tokens = count_tokens(prompt, model)
 
     response = client.chat.completions.create(
         model=model,
@@ -130,9 +120,7 @@ def summarize_youtube_text(text: str, model: str = "gpt-4-turbo") -> dict:
     )
 
     reply = response.choices[0].message.content
-    output_tokens = count_tokens(reply, model)
 
-    estimated_cost = (input_tokens / 1000) * COST_PER_1K_INPUT + (output_tokens / 1000) * COST_PER_1K_OUTPUT
 
     return {
         "summary_text": reply,
