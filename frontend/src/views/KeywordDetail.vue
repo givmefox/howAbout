@@ -31,6 +31,83 @@
 
     <!-- 콘텐츠 -->
     <div class="content">
+      <div v-if="keywordDetail" class="keyword-metrics">
+        <h3>📌 키워드 성공 요인</h3>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="icon">👍</div>
+            <div class="value">
+              {{ displayNumber(keywordDetail.like_count) }}
+            </div>
+            <div class="percentage">
+              {{
+                displayPercent(
+                  keywordDetail.like_count,
+                  keywordDetail.view_count
+                )
+              }}
+            </div>
+            <div class="label">조회수 대비 좋아요 (선호도)</div>
+          </div>
+          <div class="metric-card">
+            <div class="icon">💬</div>
+            <div class="value">
+              {{ displayNumber(keywordDetail.comment_count) }}
+            </div>
+            <div class="percentage">
+              {{
+                displayPercent(
+                  keywordDetail.comment_count,
+                  keywordDetail.view_count
+                )
+              }}
+            </div>
+            <div class="label">조회수 대비 댓글 수 (참여도)</div>
+          </div>
+          <div class="metric-card">
+            <div class="icon">👥</div>
+            <div class="value">
+              {{ displayNumber(keywordDetail.view_count) }}
+            </div>
+            <div class="percentage">
+              {{
+                displayPercent(
+                  keywordDetail.view_count,
+                  keywordDetail.subscriber_count
+                )
+              }}
+            </div>
+            <div class="label">구독자 수 대비 조회수 (성장 가능성)</div>
+          </div>
+          <div class="metric-card">
+            <div class="icon">🔍</div>
+            <div class="value">
+              {{ displayNumber(keywordDetail.view_count) }}
+            </div>
+            <div class="percentage">
+              {{
+                displayPercent(
+                  keywordDetail.view_count,
+                  keywordDetail.search_volume
+                )
+              }}
+            </div>
+            <div class="label">검색량 대비 조회수 (유튜브 관심도)</div>
+          </div>
+        </div>
+
+        <!-- ✅ 등급 요약 -->
+        <div class="grade-summary">
+          <h3>📈 키워드 등급 평가</h3>
+          <p>
+            선호도 등급: <strong>{{ keywordDetail.preference_grade }}</strong>
+          </p>
+          <p>
+            참여도 등급: <strong>{{ keywordDetail.engagement_grade }}</strong>
+          </p>
+        </div>
+      </div>
+
       <div class="related-videos">
         <h3>📺 연관 동영상</h3>
         <div
@@ -38,15 +115,11 @@
           :key="video.video_id"
           class="video-item"
         >
-          <!-- 썸네일 + 제목 -->
-          <!-- ✅ 썸네일 -->
           <img
             :src="getThumbnailUrl(video.video_id)"
             :alt="video.title"
             class="video-thumbnail"
           />
-
-          <!-- ✅ 제목 -->
           <div class="video-info">
             <a
               :href="getVideoUrl(video.video_id)"
@@ -57,7 +130,6 @@
             </a>
           </div>
         </div>
-
         <div class="pagination-controls">
           <button @click="prevPage" :disabled="currentPage === 1">
             ⬅ 이전
@@ -69,20 +141,6 @@
             다음 ➡
           </button>
         </div>
-      </div>
-
-      <div v-if="keywordDetail" class="keyword-stats">
-        <h3>📌 키워드 통계</h3>
-        <ul>
-          <li>조회수: {{ keywordDetail.view_count.toLocaleString() }}</li>
-          <li>좋아요: {{ keywordDetail.like_count.toLocaleString() }}</li>
-          <li>댓글 수: {{ keywordDetail.comment_count.toLocaleString() }}</li>
-          <li>선호도: {{ keywordDetail.preference }}</li>
-          <li>참여도: {{ keywordDetail.engagement }}</li>
-          <li>성장 가능성: {{ keywordDetail.growth_score }}</li>
-          <li>선호도 등급: {{ keywordDetail.preference_grade }}</li>
-          <li>참여도 등급: {{ keywordDetail.engagement_grade }}</li>
-        </ul>
       </div>
     </div>
   </div>
@@ -269,10 +327,31 @@ const prevPage = () => {
     currentPage.value--;
   }
 };
+
+const displayNumber = (val) => {
+  return Number.isFinite(val) ? val.toLocaleString() : "-";
+};
+
+const displayPercent = (numerator, denominator) => {
+  if (!denominator || denominator === 0) return "-";
+  const percent = (numerator / denominator) * 100;
+  return percent.toFixed(2) + "%";
+};
 </script>
 
 <style scoped>
-/* 상단: 연관 키워드 + 키워드 통계 */
+/* 🔹 페이지 상단 타이틀 */
+.keyword-title {
+  width: 100%;
+  text-align: center;
+  background-color: #f0f0f0;
+  padding: 15px 0;
+  margin-bottom: 20px;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+/* 🔹 연관 키워드 + 트렌드 섹션 */
 .related-keywords-and-detail {
   display: flex;
   justify-content: space-between;
@@ -281,43 +360,22 @@ const prevPage = () => {
   flex-wrap: wrap;
 }
 
-.related-videos {
-  flex: 0.4; /* 40% */
-  min-width: 280px;
-  max-width: 500px;
-}
-
-.keyword-stats {
-  flex: 0.6; /* 60% */
-  min-width: 320px;
-  max-width: 700px;
-}
-
-/* 키워드 통계 */
-.keyword-stats {
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  padding: 15px;
-  border-radius: 8px;
-  font-size: 15px;
-  line-height: 1.8;
-}
-.keyword-stats ul {
-  list-style-type: none;
-  padding: 0;
-}
-.keyword-stats li {
-  margin-bottom: 4px;
-}
-
-/* 연관 키워드 테이블 */
+/* 🔹 연관 키워드 테이블 */
 .related-keywords {
   padding: 8px;
   background-color: #f5f5f5;
   border-radius: 8px;
+  flex: 0.3;
+  min-width: 300px;
+  max-width: 600px;
+
+  /* 🔽 추가되는 스타일 */
+  max-height: 350px; /* 원하는 높이로 조정 가능 */
+  overflow-y: auto;
+  text-align: center;
 }
 
-/* 연관 키워드 항목 클릭 */
+/* 🔹 키워드 클릭 가능 링크 */
 .clickable-keyword {
   color: #007bff;
   cursor: pointer;
@@ -328,65 +386,60 @@ const prevPage = () => {
   text-decoration: underline;
 }
 
-/* 콘텐츠: 연관 동영상 + 트렌드 그래프 */
-.content {
-  width: 100%;
-  display: flex;
-  gap: 20px;
-  padding: 20px;
-  box-sizing: border-box;
-  flex-wrap: wrap;
-}
-
-.related-keywords,
-.trend-chart {
-  flex: 1;
-  min-width: 300px;
-  max-width: 600px;
-}
-
-/* 키워드 트렌드 차트 */
+/* 🔹 트렌드 차트 */
 .trend-chart {
   background-color: white;
   padding: 15px;
   border-radius: 8px;
   border: 1px solid #ddd;
-  height: 320px; /* ✅ 고정 높이 필수 */
+  height: 350px;
   overflow: hidden;
   position: relative;
-  flex: 1;
+  flex: 0.7;
   min-width: 300px;
-  max-width: 600px;
-}
-
-/* 연관 동영상 카드 */
-.related-videos {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 15px;
+  max-width: 900px;
+  padding-bottom: 40px;
 }
 
 .trend-chart canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
+  margin-bottom: 0;
 }
 
+/* 🔹 콘텐츠 영역: 연관 동영상 + 키워드 성공 요인 */
+.content {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+/* 🔹 연관 동영상 카드 */
+.related-videos {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 15px;
+  flex: 0.3;
+  min-width: 300px;
+  max-width: 600px;
+  text-align: center;
+}
+
+/* 동영상 썸네일 + 제목 */
 .video-item {
-  display: flex; /* ✅ 가로 정렬로 변경 */
+  display: flex;
   align-items: center;
   border: 1px solid #ddd;
   padding: 10px;
   border-radius: 5px;
   background-color: #fff;
   margin-bottom: 15px;
-  gap: 12px; /* 썸네일과 제목 사이 간격 */
-}
-
-.pagination-controls {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
+  gap: 12px;
 }
 
 .video-thumbnail {
@@ -401,23 +454,95 @@ const prevPage = () => {
 }
 
 .video-title {
-  font-size: 16px;
-  color: #007bff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 최대 줄 수 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  color: black;
   text-decoration: none;
 }
-
 .video-title:hover {
   text-decoration: underline;
 }
 
-/* 키워드 타이틀 */
-.keyword-title {
-  width: 100%;
+/* 🔹 페이지네이션 */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* 🔹 키워드 성공 요인 (카드 형식) */
+.keyword-metrics {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 30px;
+  flex: 0.7;
+  min-width: 300px;
+  max-width: 1000px;
+  max-height: flex;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.metric-card {
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 10px;
   text-align: center;
-  background-color: #f0f0f0;
-  padding: 15px 0;
-  margin-bottom: 20px;
-  font-size: 24px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.metric-card .icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.metric-card .value {
+  font-size: 22px;
   font-weight: bold;
+}
+
+.metric-card .percentage {
+  font-size: 14px;
+  color: green;
+  margin-bottom: 5px;
+}
+
+.metric-card .label {
+  font-size: 13px;
+  color: #555;
+}
+
+/* ✅ 키워드 평가 카드 디자인 */
+.grade-summary {
+  margin-top: 25px;
+  padding: 20px;
+  background: #e9f5ff;
+  border: 1px solid #b3d8ff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  font-size: 15px;
+  line-height: 1.7;
+  color: #222;
+  text-align: center;
+}
+.grade-summary h3 {
+  margin-bottom: 12px;
+  font-size: 20px;
+  color: #0056b3;
+}
+.grade-summary strong {
+  color: #0056b3;
+  font-weight: 600;
+  font-size: 16px;
 }
 </style>
