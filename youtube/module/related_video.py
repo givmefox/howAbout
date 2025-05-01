@@ -50,4 +50,3 @@ def fetch_most_related_videos_by_keyword(
     sorted_videos = sorted(video_map.values(), key=lambda x: -x["score"])
 
     return sorted_videos[:top_n]
-
