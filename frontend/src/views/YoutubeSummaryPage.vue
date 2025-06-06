@@ -127,6 +127,8 @@ export default {
   white-space: pre-wrap;
   background: #f9f9f9;
   padding: 1rem;
+  font-size: 1rem;
+
   border-radius: 6px;
   margin-bottom: 1rem;
 }

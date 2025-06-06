@@ -231,40 +231,116 @@ app.get("/run-audio", (req, res) => {
   });
 });
 
-app.get("/api/keyword-detail/:keyword", (req, res) => {
-  const keyword = decodeURIComponent(req.params.keyword);
-  const jsonPath = path.join(__dirname, "../youtube/test/graded_keywords.json");
+// app.get("/api/keyword-detail/:keyword", (req, res) => {
+//   const keyword = decodeURIComponent(req.params.keyword);
+//   const jsonPath = path.join(__dirname, "../youtube/test/graded_keywords.json");
 
-  fs.readFile(jsonPath, "utf-8", (err, data) => {
-    if (err) {
-      console.error("❌ JSON 파일 읽기 실패:", err);
-      return res.status(500).json({ error: "서버 내부 오류" });
+//   fs.readFile(jsonPath, "utf-8", (err, data) => {
+//     if (err) {
+//       console.error("❌ JSON 파일 읽기 실패:", err);
+//       return res.status(500).json({ error: "서버 내부 오류" });
+//     }
+
+//     try {
+//       const parsed = JSON.parse(data);
+
+//       let found = null;
+//       for (const category in parsed) {
+//         if (parsed[category][keyword]) {
+//           found = parsed[category][keyword];
+//           break;
+//         }
+//       }
+
+//       if (found) {
+//         res.json(found);
+//       } else {
+//         res
+//           .status(404)
+//           .json({ error: "해당 키워드 분석 결과를 찾을 수 없습니다." });
+//       }
+//     } catch (e) {
+//       console.error("❌ JSON 파싱 실패:", e);
+//       res.status(500).json({ error: "JSON 파싱 오류" });
+//     }
+//   });
+// });
+
+//키워드 그래프
+app.get("/api/keyword-trend", (req, res) => {
+  const keyword = req.query.keyword;
+  if (!keyword) return res.status(400).json({ error: "❌ keyword 필요" });
+
+  const scriptPath = path.join(__dirname, "graph.py");
+  const pythonPath = "../youtube/.venv/Scripts/python.exe";
+
+  const py = spawn(pythonPath, [scriptPath, keyword]);
+
+  let output = "";
+  py.stdout.on("data", (data) => {
+    output += data.toString();
+    console.log("📦 PYTHON STDOUT:", data.toString()); // 여기에 찍히는지 확인
+
+  });
+
+  py.stderr.on("data", (data) => {
+    console.error("🐍 PYTHON ERROR:", data.toString());
+  });
+
+  py.on("close", (code) => {
+    if (code !== 0) {
+      return res.status(500).json({ error: "Python 실행 실패" });
     }
 
     try {
-      const parsed = JSON.parse(data);
-
-      let found = null;
-      for (const category in parsed) {
-        if (parsed[category][keyword]) {
-          found = parsed[category][keyword];
-          break;
-        }
-      }
-
-      if (found) {
-        res.json(found);
-      } else {
-        res
-          .status(404)
-          .json({ error: "해당 키워드 분석 결과를 찾을 수 없습니다." });
-      }
+      const parsed = JSON.parse(output);
+      res.json({ data: parsed });
     } catch (e) {
-      console.error("❌ JSON 파싱 실패:", e);
-      res.status(500).json({ error: "JSON 파싱 오류" });
+      res.status(500).json({ error: "JSON 파싱 실패", raw: output });
     }
   });
 });
+
+
+app.get("/api/keyword-details", (req, res) => {
+  const keyword = req.query.keyword;
+  if (!keyword) {
+    return res.status(400).json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
+  }
+
+  const pythonPath = "../youtube/.venv/Scripts/python.exe";
+  const scriptPath = path.join(__dirname, "detail_runner.py"); // runner 파일 이름 넣기
+
+  const py = spawn(pythonPath, [scriptPath, keyword]);
+  py.stdout.setEncoding("utf8");
+
+  let output = "";
+  let error = "";
+
+  py.stdout.on("data", (data) => {
+    output += data.toString();
+  });
+
+  py.stderr.on("data", (data) => {
+    error += data.toString();
+  });
+
+  py.on("close", (code) => {
+    if (code !== 0) {
+      return res.status(500).json({ error: "❌ Python 실행 오류", detail: error });
+    }
+
+    try {
+      const parsed = JSON.parse(output);
+      res.json(parsed);
+    } catch (e) {
+      res.status(500).json({ error: "❌ JSON 파싱 실패", raw: output });
+    }
+  });
+});
+
+
+
 
 // 서버 실행
 app.listen(port, "0.0.0.0", () => {

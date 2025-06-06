@@ -151,6 +151,8 @@ import { ref, onMounted, watch, nextTick, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 import Chart from "chart.js/auto";
+import 'chartjs-adapter-date-fns';
+
 
 const route = useRoute();
 const router = useRouter();
@@ -232,11 +234,17 @@ const fetchKeywordDetails = async () => {
     }));
 
     const detailResponse = await axios.get(
-      `${apiUrl}/api/keyword-detail/${encodeURIComponent(keyword.value)}`
+      `${apiUrl}/api/keyword-details?keyword=${encodeURIComponent(keyword.value)}`
     );
     keywordDetail.value = detailResponse.data;
+    
+    
 
-    generateMockChartData();
+
+
+
+    //generateMockChartData();
+    generateTrendChartData();
   } catch (error) {
     console.error("❌ 데이터 불러오기 실패:", error);
   }
@@ -252,35 +260,86 @@ const goToKeyword = (newKeyword) => {
   }
 };
 
-const generateMockChartData = async () => {
+// const generateMockChartData = async () => {
+//   await nextTick();
+//   if (chartInstance) chartInstance.destroy();
+
+//   const ctx = trendChart.value.getContext("2d");
+//   const mockDates = [
+//     "1월",
+//     "2월",
+//     "3월",
+//     "4월",
+//     "5월",
+//     "6월",
+//     "7월",
+//     "8월",
+//     "9월",
+//     "10월",
+//   ];
+//   const mockValues = Array.from({ length: mockDates.length }, () =>
+//     Math.floor(Math.random() * 100)
+//   );
+
+//   chartInstance = new Chart(ctx, {
+//     type: "line",
+//     data: {
+//       labels: mockDates,
+//       datasets: [
+//         {
+//           label: "검색량",
+//           data: mockValues,
+//           borderColor: "#007bff",
+//           backgroundColor: "rgba(0, 123, 255, 0.2)",
+//           fill: true,
+//           tension: 0.4,
+//         },
+//       ],
+//     },
+//     options: {
+//       responsive: true,
+//       maintainAspectRatio: false,
+//       scales: {
+//         x: { title: { display: true, text: "월별" } },
+//         y: { title: { display: true, text: "검색량" } },
+//       },
+//     },
+//   });
+// };
+
+
+//import dayjs from "dayjs";
+
+const generateTrendChartData = async () => {
   await nextTick();
-  if (chartInstance) chartInstance.destroy();
+
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
 
   const ctx = trendChart.value.getContext("2d");
-  const mockDates = [
-    "1월",
-    "2월",
-    "3월",
-    "4월",
-    "5월",
-    "6월",
-    "7월",
-    "8월",
-    "9월",
-    "10월",
-  ];
-  const mockValues = Array.from({ length: mockDates.length }, () =>
-    Math.floor(Math.random() * 100)
-  );
+
+  // ✅ API 요청
+  const response = await axios.get(`${apiUrl}/api/keyword-trend`, {
+    params: { keyword: keyword.value },
+  });
+
+  const trendData = response.data.data;
+
+  // ✅ Chart.js가 인식할 수 있도록 x, y 포맷으로 재구성
+  const formattedData = trendData.map((item) => ({
+    x: new Date(item.date),
+    y: item.score,
+  }));
 
   chartInstance = new Chart(ctx, {
     type: "line",
     data: {
-      labels: mockDates,
       datasets: [
         {
-          label: "검색량",
-          data: mockValues,
+          label: "트렌드 점수",
+          data: formattedData, // ✅ 여기가 핵심
           borderColor: "#007bff",
           backgroundColor: "rgba(0, 123, 255, 0.2)",
           fill: true,
@@ -292,12 +351,33 @@ const generateMockChartData = async () => {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        x: { title: { display: true, text: "월별" } },
-        y: { title: { display: true, text: "검색량" } },
+        x: {
+          type: "time",
+          time: {
+            unit: "day",
+            tooltipFormat: "yyyy-MM-dd",
+            displayFormats: {
+              day: "MM/dd",
+            },
+          },
+          title: {
+            display: true,
+            text: "날짜",
+          },
+        },
+        y: {
+          min: 0,
+          max: 1,
+          title: {
+            display: true,
+            text: "정규화된 점수",
+          },
+        },
       },
     },
   });
 };
+
 
 onMounted(fetchKeywordDetails);
 
