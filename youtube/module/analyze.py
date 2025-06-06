@@ -88,22 +88,22 @@ def score_video_keywords(data):
             # 제목
             title_nouns = video.get("title_nouns", [])
             for noun in title_nouns:
-                keywords_scores[noun] = 50
+                keywords_scores[noun] = 30
             # tag
             tag_nouns = video.get("tag_nouns", [])
             for noun in tag_nouns:
                 if noun not in keywords_scores:
-                    keywords_scores[noun] = 25
+                    keywords_scores[noun] = 10
                 else:
-                    keywords_scores[noun] += 25   
+                    keywords_scores[noun] += 10  
             # comments
             comments_nouns = video.get("comments_nouns", [])
             for noun in comments_nouns:
                 if noun not in keywords_scores:
-                    keywords_scores[noun] = 1
+                    keywords_scores[noun] = 0.1
                 
                 else:
-                    keywords_scores[noun] += 1
+                    keywords_scores[noun] += 0.1
             video["freq_score"] = keywords_scores
         
         # textrank 기반 score    
