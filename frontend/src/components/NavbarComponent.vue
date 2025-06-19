@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 
@@ -14,6 +14,34 @@ const isModalOpen = ref(false);
 const userid = ref("");
 const password = ref("");
 const errorMessage = ref("");
+const isMenuOpen = ref(false);
+const menuRef = ref(null);
+
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value;
+};
+
+const hamburgerRef = ref(null);
+
+// 외부 클릭 감지
+const handleClickOutside = (e) => {
+  if (
+    menuRef.value &&
+    !menuRef.value.contains(e.target) &&
+    hamburgerRef.value &&
+    !hamburgerRef.value.contains(e.target)
+  ) {
+    isMenuOpen.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
 
 // 로그인 요청
 const login = async () => {
@@ -30,7 +58,7 @@ const login = async () => {
 
     if (response.data.access_token) {
       localStorage.setItem("token", response.data.access_token);
-      localStorage.setItem("username", response.data.username); // ✅ App.vue에서 복원용
+      localStorage.setItem("username", response.data.username);
       emit("login-success", response.data.username);
       alert("로그인 성공!");
       closeModal();
@@ -47,7 +75,7 @@ const login = async () => {
 const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("username");
-  location.reload(); // App.vue 다시 mount → 로그인 상태 초기화
+  location.reload();
 };
 
 // 모달 제어
@@ -74,12 +102,24 @@ const goToRegister = () => {
 
 <template>
   <nav class="navbar">
-    <a href="/" class="logo">이거어때</a>
-    <div>
-      <a href="/">Home</a>
-      <router-link to="/Ranking">Ranking</router-link>
-      <router-link to="/about">About</router-link>
+    <div class="hamburger" ref="hamburgerRef" @click="toggleMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
 
+    <transition name="slide-fade">
+      <div v-if="isMenuOpen" class="dropdown-menu" ref="menuRef">
+        <router-link to="/">Home</router-link>
+        <router-link to="/Ranking">Ranking</router-link>
+        <router-link to="/about">About</router-link>
+      </div>
+    </transition>
+
+    <!-- 🔥 텍스트 로고 -->
+    <router-link to="/" class="text-logo"> 이거어때 </router-link>
+
+    <div>
       <template v-if="props.isLoggedIn">
         <span class="welcome-message">환영합니다, {{ props.username }}님!</span>
         <button class="logout-btn" @click="logout">Logout</button>
@@ -88,7 +128,6 @@ const goToRegister = () => {
     </div>
   </nav>
 
-  <!-- 로그인 모달 -->
   <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
     <div class="modal-content" @click.stop>
       <h2>로그인</h2>
@@ -115,24 +154,73 @@ const goToRegister = () => {
 <style scoped>
 .navbar {
   display: flex;
-  background: #dd3333;
-  padding: 20px;
   justify-content: space-between;
   align-items: center;
+  background: #dd3333;
+  padding: 5px 20px;
+  position: relative;
 }
 
-.navbar a {
-  color: #fff;
-  text-decoration: none;
-  padding: 1em;
-  margin-right: 13px;
-}
-
-.logo {
+.text-logo {
   font-size: 22px;
   font-weight: bold;
   color: white;
   text-decoration: none;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background-color: white;
+  border-radius: 2px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+}
+
+.dropdown-menu a {
+  text-decoration: none;
+  padding: 8px 12px;
+  color: #333;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.dropdown-menu a:hover {
+  background: #f0f0f0;
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
 }
 
 .welcome-message {

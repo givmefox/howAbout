@@ -22,6 +22,21 @@
     </ul>
 
     <button @click="emitSearch">검색</button>
+
+    <!-- 최근 검색어 태그 스타일 -->
+    <div v-if="recentKeywords.length" class="recent-keywords">
+      <div class="recent-label">최근 검색어:</div>
+      <div class="chip-list">
+        <span
+          class="chip"
+          v-for="(keyword, i) in recentKeywords"
+          :key="'recent-' + i"
+          @click="useRecentKeyword(keyword)"
+        >
+          #{{ keyword }}
+        </span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -37,6 +52,34 @@ const selectedIndex = ref(-1); // 🔥 키보드 선택용
 const router = useRouter();
 const searchBarRef = ref(null);
 const apiUrl = process.env.VUE_APP_API_URL;
+const recentKeywords = ref([]);
+
+// mount 시 로컬에서 불러오기
+onMounted(() => {
+  const stored = localStorage.getItem("recentKeywords");
+  if (stored) {
+    recentKeywords.value = JSON.parse(stored);
+  }
+});
+
+// 검색어 저장 함수
+const saveRecentKeyword = (keyword) => {
+  const trimmed = keyword.trim();
+  if (!trimmed) return;
+
+  const newList = [
+    trimmed,
+    ...recentKeywords.value.filter((k) => k !== trimmed),
+  ].slice(0, 5);
+  recentKeywords.value = newList;
+  localStorage.setItem("recentKeywords", JSON.stringify(newList));
+};
+
+// 클릭 시 검색 실행
+const useRecentKeyword = (keyword) => {
+  searchQuery.value = keyword;
+  emitSearch();
+};
 
 const isComposing = ref(false);
 
@@ -94,9 +137,12 @@ const selectSuggestion = (s) => {
   emitSearch();
 };
 
+// emitSearch 함수 내에 저장 호출
 const emitSearch = () => {
-  if (searchQuery.value.trim()) {
-    router.push(`/keyword/${encodeURIComponent(searchQuery.value.trim())}`);
+  const keyword = searchQuery.value.trim();
+  if (keyword) {
+    saveRecentKeyword(keyword); // ✅ 최근검색어 저장
+    router.push(`/keyword/${encodeURIComponent(keyword)}`);
     suggestions.value = [];
   }
 };
@@ -165,6 +211,42 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.recent-keywords {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 10px;
+  padding-left: 4px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.recent-label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background-color: #f1f1f1;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chip:hover {
+  background-color: #e0e0e0;
+}
+
 .search-bar {
   position: relative;
   display: flex;
@@ -172,7 +254,7 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap; /* 화면이 좁을 때 버튼이 자동으로 아래로 내려감 */
   gap: 10px;
-  margin: 20px auto;
+  margin: 1px auto;
   width: 100%;
   max-width: 600px;
 }
