@@ -12,6 +12,7 @@ const router = createRouter({
       name: "Register",
       component: RegisterView,
     },
+    
 
     {
       path: "/ranking",
@@ -39,6 +40,12 @@ const router = createRouter({
       name: "Home",
       component: () => import("@/views/HomeView.vue"),
     },
+
+    {
+      path: "/planner",
+      name: "Planner",
+      component: () => import("@/views/VideoPlanner.vue")
+    }
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

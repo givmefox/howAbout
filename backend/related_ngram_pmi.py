@@ -15,7 +15,7 @@ def related_keyword_video_level(
     coll: str = "tokenize",
     n: int = 6,
     min_co: int = 3,
-    top_n: int = 10,
+    top_n: int = 30,
     days: int = 7,                       # ✨ 최근 N일만 분석 (default 7)
 ) -> List[str]:
     client = MongoClient(mongo_uri)

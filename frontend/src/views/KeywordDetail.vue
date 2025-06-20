@@ -10,6 +10,7 @@
         <v-data-table
           :headers="keywordHeaders"
           :items="relatedKeywordsTable"
+          :items-per-page="30"
           class="elevation-1"
           dense
           hide-default-footer

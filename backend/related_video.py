@@ -8,7 +8,7 @@ def fetch_most_related_videos_by_keyword(
     db_name: str = "keyword",
     coll_name: str = "keyword",
     top_n: int = 5,
-    days: int = 7,
+    days: int = 30,
 ):
     """
     최근 N일간의 동영상 중, 키워드 관련성 높은 동영상 Top-N 반환 (중복 제거)

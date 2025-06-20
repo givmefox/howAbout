@@ -1213,3 +1213,10 @@ z플립 6	NNP
 덩덩덩덩덩	NNP
 뽑기뽑기뽑기뽑기	NNP
 팔님더미믹	NNP
+로트롤리치나	NNP
+aespa	에스파/NNP
+썩쏘	NNP
+즙즙즙즙	NNP
+한테고백하기네즈	NNP
+하기네즈	NNP
+네즈우웡	NNP
