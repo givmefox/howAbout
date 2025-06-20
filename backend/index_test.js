@@ -73,7 +73,9 @@ app.get("/mongo-test", async (req, res) => {
 app.get("/api/keywords-popular-videos", (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
-    return res.status(400).json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
+    return res
+      .status(400)
+      .json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
   }
 
   const pythonPath = "../youtube/.venv/Scripts/python.exe"; // ✅ 윈도우용 파이썬 경로
@@ -96,7 +98,9 @@ app.get("/api/keywords-popular-videos", (req, res) => {
   py.on("close", (code) => {
     if (code !== 0) {
       console.error("🐍 Python 오류:", error);
-      return res.status(500).json({ error: "❌ Python 실행 실패", detail: error });
+      return res
+        .status(500)
+        .json({ error: "❌ Python 실행 실패", detail: error });
     }
 
     try {
@@ -107,7 +111,6 @@ app.get("/api/keywords-popular-videos", (req, res) => {
     }
   });
 });
-
 
 // app.get("/api/keywords-popular-videos", async (req, res) => {
 //   try {
@@ -147,7 +150,9 @@ app.get("/api/keywords-popular-videos", (req, res) => {
 app.get("/api/related-keywords", (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
-    return res.status(400).json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
+    return res
+      .status(400)
+      .json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
   }
 
   // ✅ 윈도우용 Python 가상환경 실행 경로
@@ -171,7 +176,9 @@ app.get("/api/related-keywords", (req, res) => {
   py.on("close", (code) => {
     if (code !== 0) {
       console.error("🐍 Python 오류:", error);
-      return res.status(500).json({ error: "❌ Python 실행 실패", detail: error });
+      return res
+        .status(500)
+        .json({ error: "❌ Python 실행 실패", detail: error });
     }
 
     try {
@@ -182,7 +189,6 @@ app.get("/api/related-keywords", (req, res) => {
     }
   });
 });
-
 
 app.get("/run-audio", (req, res) => {
   const youtubeUrl = req.query.url;
@@ -280,7 +286,6 @@ app.get("/api/keyword-trend", (req, res) => {
   py.stdout.on("data", (data) => {
     output += data.toString();
     console.log("📦 PYTHON STDOUT:", data.toString()); // 여기에 찍히는지 확인
-
   });
 
   py.stderr.on("data", (data) => {
@@ -301,11 +306,12 @@ app.get("/api/keyword-trend", (req, res) => {
   });
 });
 
-
 app.get("/api/keyword-details", (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
-    return res.status(400).json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
+    return res
+      .status(400)
+      .json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
   }
 
   const pythonPath = "../youtube/.venv/Scripts/python.exe";
@@ -327,7 +333,9 @@ app.get("/api/keyword-details", (req, res) => {
 
   py.on("close", (code) => {
     if (code !== 0) {
-      return res.status(500).json({ error: "❌ Python 실행 오류", detail: error });
+      return res
+        .status(500)
+        .json({ error: "❌ Python 실행 오류", detail: error });
     }
 
     try {
@@ -339,8 +347,51 @@ app.get("/api/keyword-details", (req, res) => {
   });
 });
 
+app.get("/api/keyword-growth", (req, res) => {
+  const keyword = req.query.keyword;
+  if (!keyword) {
+    return res
+      .status(400)
+      .json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
+  }
 
+  const pythonPath = "../youtube/.venv/Scripts/python.exe";
+  const scriptPath = path.join(__dirname, "keyword_growth_single.py");
 
+  const py = spawn(pythonPath, [scriptPath, keyword]);
+  py.stdout.setEncoding("utf8");
+
+  let output = "";
+  let error = "";
+
+  py.stdout.on("data", (data) => {
+    output += data.toString();
+  });
+
+  py.stderr.on("data", (data) => {
+    error += data.toString();
+  });
+
+  py.on("close", (code) => {
+    if (code !== 0) {
+      return res.status(500).json({
+        error: "❌ Python 실행 실패",
+        detail: error,
+      });
+    }
+
+    try {
+      // Python 파일에서 JSON 형식 출력 필요
+      const parsed = JSON.parse(output);
+      res.json({ data: parsed });
+    } catch (e) {
+      res.status(500).json({
+        error: "❌ JSON 파싱 실패",
+        raw: output,
+      });
+    }
+  });
+});
 
 // 서버 실행
 app.listen(port, "0.0.0.0", () => {

@@ -27,6 +27,12 @@
         <h3>📊 키워드 트렌드</h3>
         <canvas ref="trendChart"></canvas>
       </div>
+
+      <!-- ✅ 추가: 성장 점수 -->
+      <div class="growth-chart">
+        <h3>📈 키워드 성장 점수</h3>
+        <canvas ref="growthChart"></canvas>
+      </div>
     </div>
 
     <!-- 콘텐츠 -->
@@ -151,8 +157,7 @@ import { ref, onMounted, watch, nextTick, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 import Chart from "chart.js/auto";
-import 'chartjs-adapter-date-fns';
-
+import "chartjs-adapter-date-fns";
 
 const route = useRoute();
 const router = useRouter();
@@ -192,16 +197,15 @@ const fetchKeywordDetails = async () => {
     // );
 
     // 연관 키워드 수정
-    const relatedResponse = await axios.get(
-      `${apiUrl}/api/related-keywords`,
-      { 
-        params: { keyword: keyword.value } 
-      }
+    const relatedResponse = await axios.get(`${apiUrl}/api/related-keywords`, {
+      params: { keyword: keyword.value },
+    });
+    relatedKeywordsTable.value = relatedResponse.data.related.map(
+      (item, index) => ({
+        rank: index + 1,
+        keyword: item,
+      })
     );
-    relatedKeywordsTable.value = relatedResponse.data.related.map((item, index) => ({
-      rank: index + 1,
-      keyword: item,
-    }));
 
     // const videoResponse = await axios.get(
     //   `${apiUrl}/api/mongo-keyword-videos`,
@@ -218,7 +222,6 @@ const fetchKeywordDetails = async () => {
     //       score: video.score,
     //     }))
     //   );
-    
 
     // ✅ 연관 인기 동영상 가져오기 (related_video_runner.py 실행 결과)
     const videoResponse = await axios.get(
@@ -234,17 +237,15 @@ const fetchKeywordDetails = async () => {
     }));
 
     const detailResponse = await axios.get(
-      `${apiUrl}/api/keyword-details?keyword=${encodeURIComponent(keyword.value)}`
+      `${apiUrl}/api/keyword-details?keyword=${encodeURIComponent(
+        keyword.value
+      )}`
     );
     keywordDetail.value = detailResponse.data;
-    
-    
-
-
-
 
     //generateMockChartData();
     generateTrendChartData();
+    generateGrowthChartData();
   } catch (error) {
     console.error("❌ 데이터 불러오기 실패:", error);
   }
@@ -306,7 +307,6 @@ const goToKeyword = (newKeyword) => {
 //     },
 //   });
 // };
-
 
 //import dayjs from "dayjs";
 
@@ -378,6 +378,73 @@ const generateTrendChartData = async () => {
   });
 };
 
+const growthChart = ref(null); // 캔버스 참조 추가
+let growthChartInstance = null;
+
+const generateGrowthChartData = async () => {
+  await nextTick();
+
+  if (growthChartInstance) {
+    growthChartInstance.destroy();
+    growthChartInstance = null;
+  }
+
+  const ctx = growthChart.value.getContext("2d");
+
+  const response = await axios.get(`${apiUrl}/api/keyword-growth`, {
+    params: { keyword: keyword.value },
+  });
+
+  const trendData = response.data.data;
+
+  const formattedData = trendData.map((item) => ({
+    x: new Date(item.date),
+    y: item.growth_score,
+  }));
+
+  growthChartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      datasets: [
+        {
+          label: "성장 점수",
+          data: formattedData,
+          borderColor: "#ff5722",
+          backgroundColor: "rgba(255, 87, 34, 0.2)",
+          fill: true,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          type: "time",
+          time: {
+            unit: "day",
+            tooltipFormat: "yyyy-MM-dd",
+            displayFormats: {
+              day: "MM/dd",
+            },
+          },
+          title: {
+            display: true,
+            text: "날짜",
+          },
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: "성장 점수",
+          },
+        },
+      },
+    },
+  });
+};
 
 onMounted(fetchKeywordDetails);
 
@@ -475,7 +542,7 @@ const displayPercent = (numerator, denominator) => {
   height: 350px;
   overflow: hidden;
   position: relative;
-  flex: 0.7;
+  flex: 0.35;
   min-width: 300px;
   max-width: 900px;
   padding-bottom: 40px;
@@ -486,6 +553,25 @@ const displayPercent = (numerator, denominator) => {
   width: 100% !important;
   height: 100% !important;
   margin-bottom: 0;
+}
+
+.growth-chart {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  height: 350px;
+  overflow: hidden;
+  position: relative;
+  flex: 0.35;
+  min-width: 300px;
+  max-width: 900px;
+  padding-bottom: 40px;
+}
+.growth-chart canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* 🔹 콘텐츠 영역: 연관 동영상 + 키워드 성공 요인 */

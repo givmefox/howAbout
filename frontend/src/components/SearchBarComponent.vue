@@ -56,7 +56,7 @@ const recentKeywords = ref([]);
 
 // mount 시 로컬에서 불러오기
 onMounted(() => {
-  const stored = localStorage.getItem("recentKeywords");
+  const stored = sessionStorage.getItem("recentKeywords"); // ✅ 변경
   if (stored) {
     recentKeywords.value = JSON.parse(stored);
   }
@@ -72,7 +72,7 @@ const saveRecentKeyword = (keyword) => {
     ...recentKeywords.value.filter((k) => k !== trimmed),
   ].slice(0, 5);
   recentKeywords.value = newList;
-  localStorage.setItem("recentKeywords", JSON.stringify(newList));
+  sessionStorage.setItem("recentKeywords", JSON.stringify(newList)); // ✅ 변경
 };
 
 // 클릭 시 검색 실행

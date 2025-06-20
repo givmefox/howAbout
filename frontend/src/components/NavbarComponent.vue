@@ -110,9 +110,9 @@ const goToRegister = () => {
 
     <transition name="slide-fade">
       <div v-if="isMenuOpen" class="dropdown-menu" ref="menuRef">
-        <router-link to="/">Home</router-link>
-        <router-link to="/Ranking">Ranking</router-link>
-        <router-link to="/about">About</router-link>
+        <router-link to="/">홈</router-link>
+        <router-link to="/Ranking">키워드 랭킹</router-link>
+        <router-link to="/about">영상요약</router-link>
       </div>
     </transition>
 
@@ -122,9 +122,9 @@ const goToRegister = () => {
     <div>
       <template v-if="props.isLoggedIn">
         <span class="welcome-message">환영합니다, {{ props.username }}님!</span>
-        <button class="logout-btn" @click="logout">Logout</button>
+        <button class="logout-btn" @click="logout">로그아웃</button>
       </template>
-      <button v-else class="login-btn" @click="openModal">Login</button>
+      <button v-else class="login-btn" @click="openModal">로그인</button>
     </div>
   </nav>
 
