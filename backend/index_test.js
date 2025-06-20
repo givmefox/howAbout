@@ -14,6 +14,24 @@ const authRoutes = require("./routes/authRoutes.js");
 const fs = require("fs");
 const rankingRoutes = require("./routes/rankingRoute");
 
+const OpenAI = require("openai");
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+
+// GPT 응답 파싱 함수
+function parseGPTResult(text) {
+  const titleMatch = text.match(/1\.\s*Title:\s*(.+)/i);
+  const scriptMatch = text.match(/2\.\s*Script\s*\(.*?\):\s*([\s\S]*)/i);
+
+  return {
+    title: titleMatch ? titleMatch[1].trim() : "",
+    script: scriptMatch ? scriptMatch[1].trim() : ""
+  };
+}
+
 app.use("/auth", authRoutes); // 이게 있어야 /auth/login 가능함
 
 app.use(
@@ -142,8 +160,8 @@ app.get("/api/keywords-popular-videos", (req, res) => {
 //       .json({ message: "❌ 관련 키워드 데이터 불러오기 실패", error });
 //   }
 // });
-// 연관 키워드 수정
 
+// 연관 키워드 수정
 app.get("/api/related-keywords", (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
@@ -183,7 +201,7 @@ app.get("/api/related-keywords", (req, res) => {
   });
 });
 
-
+// 동영상 요약
 app.get("/run-audio", (req, res) => {
   const youtubeUrl = req.query.url;
 
@@ -301,7 +319,7 @@ app.get("/api/keyword-trend", (req, res) => {
   });
 });
 
-
+// 키워드 디테일
 app.get("/api/keyword-details", (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
@@ -340,7 +358,53 @@ app.get("/api/keyword-details", (req, res) => {
 });
 
 
+//gpt api 제목, 스크립트 뽑아주기
+// POST /generate-video-idea
+console.log("API KEY:", process.env.OPENAI_API_KEY);
+app.post("/planner", async (req, res) => {
+  console.log("API KEY:", process.env.OPENAI_API_KEY);
+  //console.log("rawText:", rawText);
 
+
+  app.use(express.json());
+
+
+
+  const { target_audience, video_length, main_keyword, related_keywords, style } = req.body;
+
+  const prompt = `
+너는 유튜브 컨텐츠 어시스트야.
+다음 입력값에 따라서, 조회수가 잘 나올만한 제목을 지어주고, 동영상 길이 ${video_length} 만큼의 스크리브를 짜줘
+
+Target Audience: ${target_audience}
+Main Keyword: ${main_keyword}
+Related Keywords: ${related_keywords.join(", ")}
+Style: ${style}
+
+Output format:
+1. Title:
+2. Script (for a ${video_length} video):
+`;
+  try {
+    
+    const response = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.8,
+  });
+
+  // OpenAI SDK v4에서는 response 자체가 최종 데이터다!
+  console.log("GPT 응답 전체:", response);
+
+  const rawText = response.choices[0].message.content;
+  const parsedResult = parseGPTResult(rawText);
+
+  res.json({ result: parsedResult });
+  } catch (err) {
+    console.error("OpenAI API Error:", err.message);
+    res.status(500).json({ error: "Failed to generate content." });
+  }
+});
 
 // 서버 실행
 app.listen(port, "0.0.0.0", () => {
