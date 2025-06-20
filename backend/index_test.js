@@ -20,7 +20,6 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-
 // GPT 응답 파싱 함수
 function parseGPTResult(text) {
   const titleMatch = text.match(/1\.\s*Title:\s*(.+)/i);
@@ -28,7 +27,7 @@ function parseGPTResult(text) {
 
   return {
     title: titleMatch ? titleMatch[1].trim() : "",
-    script: scriptMatch ? scriptMatch[1].trim() : ""
+    script: scriptMatch ? scriptMatch[1].trim() : "",
   };
 }
 
@@ -208,7 +207,6 @@ app.get("/api/related-keywords", (req, res) => {
   });
 });
 
-
 // 동영상 요약
 app.get("/run-audio", (req, res) => {
   const youtubeUrl = req.query.url;
@@ -326,7 +324,6 @@ app.get("/api/keyword-trend", (req, res) => {
   });
 });
 
-
 // 키워드 디테일
 app.get("/api/keyword-details", (req, res) => {
   const keyword = req.query.keyword;
@@ -375,13 +372,10 @@ app.get("/api/keyword-growth", (req, res) => {
     return res
       .status(400)
       .json({ error: "❌ 키워드가 필요합니다 (keyword=...)" });
-  
+  }
 
   const pythonPath = "../youtube/.venv/Scripts/python.exe";
   const scriptPath = path.join(__dirname, "keyword_growth_single.py");
-
-  
-
 
   const py = spawn(pythonPath, [scriptPath, keyword]);
   py.stdout.setEncoding("utf8");
@@ -406,7 +400,6 @@ app.get("/api/keyword-growth", (req, res) => {
     }
 
     try {
-      // Python 파일에서 JSON 형식 출력 필요
       const parsed = JSON.parse(output);
       res.json({ data: parsed });
     } catch (e) {
@@ -417,16 +410,19 @@ app.get("/api/keyword-growth", (req, res) => {
     }
   });
 });
-  app.use(express.json());
-
 
 //gpt api 제목, 스크립트 뽑아주기
 // POST /planner
 app.post("/planner", async (req, res) => {
-  console.log("API KEY:", process.env.OPENAI_API_KEY);
+  app.use(express.json());
 
-
-  const { target_audience, video_length, main_keyword, related_keywords, style } = req.body;
+  const {
+    target_audience,
+    video_length,
+    main_keyword,
+    related_keywords,
+    style,
+  } = req.body;
 
   const prompt = `
 너는 유튜브 컨텐츠 어시스트야.
@@ -442,20 +438,19 @@ Output format:
 2. Script (for a ${video_length} video):
 `;
   try {
-    
     const response = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.8,
-  });
+      model: "gpt-4",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.8,
+    });
 
-  // OpenAI SDK v4에서는 response 자체가 최종 데이터다!
-  console.log("GPT 응답 전체:", response);
+    // OpenAI SDK v4에서는 response 자체가 최종 데이터다!
+    console.log("GPT 응답 전체:", response);
 
-  const rawText = response.choices[0].message.content;
-  const parsedResult = parseGPTResult(rawText);
+    const rawText = response.choices[0].message.content;
+    const parsedResult = parseGPTResult(rawText);
 
-  res.json({ result: parsedResult });
+    res.json({ result: parsedResult });
   } catch (err) {
     console.error("OpenAI API Error:", err.message);
     res.status(500).json({ error: "Failed to generate content." });

@@ -113,7 +113,7 @@ const goToRegister = () => {
         <router-link to="/">홈</router-link>
         <router-link to="/Ranking">키워드 랭킹</router-link>
         <router-link to="/about">영상요약</router-link>
-        <router-link to="/planner">동영상 플래너너</router-link>
+        <router-link to="/planner">동영상 플래너</router-link>
       </div>
     </transition>
 
