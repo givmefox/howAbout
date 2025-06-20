@@ -41,6 +41,11 @@ onMounted(async () => {
     v-if="route.path !== '/register'"
     :class="['main-container', { 'main-home': route.path === '/' }]"
   >
+    <!-- 🔥 로고는 메인에서만 표시 -->
+    <router-link v-if="route.path === '/'" to="/">
+      <img src="@/assets/logo.png" alt="로고" class="logo" />
+    </router-link>
+
     <SearchBarComponent />
   </div>
 
@@ -72,5 +77,11 @@ body {
     flex-direction: column;
     height: auto;
   }
+}
+
+.logo {
+  width: 250px;
+  margin-bottom: 1px;
+  margin-top: 20px; /* 필요 시 위쪽 여백 추가 */
 }
 </style>
