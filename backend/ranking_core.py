@@ -10,7 +10,7 @@ def run_ranking(start_date, end_date):
     client = MongoClient("mongodb://localhost:27017/")
     collection = client["keyword"]["keyword"]
 
-    alpha = 0.4
+    alpha = 0.5
     skipped = 0
     scores = defaultdict(lambda: defaultdict(float))
     counts = defaultdict(lambda: defaultdict(int))
