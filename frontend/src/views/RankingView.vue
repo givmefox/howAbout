@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="centered-content">
-      <h2 style="color: #ff0000">🔥 유튜브 인기 키워드 랭킹 🔥</h2>
+      <h2 class="title">🔥 유튜브 인기 키워드 랭킹 🔥</h2>
 
       <div class="filter-container">
         <label for="category-filter">카테고리 : </label>
@@ -23,29 +23,53 @@
 
       <div v-if="loading" class="loading">데이터 불러오는 중...</div>
 
-      <div v-else class="hashtags">
+      <div v-else class="table-wrapper">
         <table>
           <thead>
             <tr>
               <th>순위</th>
               <th>키워드</th>
-              <th>카테고리</th>
+              <th>등락</th>
+              <th>이전 순위</th>
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="(keyword, index) in filteredKeywords.slice(0, 50)"
-              :key="index"
-            >
-              <td>{{ keyword.rank }}</td>
+            <tr v-for="(keyword, index) in filteredKeywords" :key="index">
+              <td>{{ index + 1 }}</td>
               <td>
                 <router-link
-                  :to="`/keyword/${encodeURIComponent(keyword.name)}`"
+                  :to="`/keyword/${encodeURIComponent(keyword.keyword)}`"
                 >
-                  {{ keyword.name }}
+                  {{ keyword.keyword }}
                 </router-link>
               </td>
-              <td>{{ keyword.category }}</td>
+              <td>
+                <span
+                  v-if="keyword.previous_rank === null"
+                  style="color: green; font-weight: bold"
+                >
+                  NEW
+                </span>
+                <span
+                  v-else-if="keyword.rank_change > 0"
+                  style="color: red; font-weight: bold"
+                >
+                  ▲ {{ keyword.rank_change }}
+                </span>
+                <span
+                  v-else-if="keyword.rank_change < 0"
+                  style="color: blue; font-weight: bold"
+                >
+                  ▼ {{ -keyword.rank_change }}
+                </span>
+                <span
+                  v-else-if="keyword.rank_change === 0"
+                  style="color: gray; font-weight: bold"
+                >
+                  –
+                </span>
+              </td>
+              <td>{{ keyword.previous_rank ?? "—" }}</td>
             </tr>
           </tbody>
         </table>
@@ -56,19 +80,18 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { nextTick } from "vue";
 import axios from "axios";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
-const keywordsByCategory = ref({});
+
 const selectedCategory = ref(route.query.category || "News & Politics");
 const selectedPeriod = ref(route.query.period || "today");
+const allKeywords = ref({});
 const loading = ref(true);
 const apiUrl = process.env.VUE_APP_API_URL;
 
-// ✅ 카테고리 ID → 이름 매핑
 const categoryMap = {
   25: "News & Politics",
   10: "Music",
@@ -77,31 +100,20 @@ const categoryMap = {
   28: "Science & Technology",
 };
 
-const mapCategoryIdToName = (id) => {
-  return categoryMap[id] || "기타";
-};
-
 const fetchKeywords = async () => {
   loading.value = true;
   try {
     const response = await axios.get(
       `${apiUrl}/api/ranking/${selectedPeriod.value}`
     );
-    if (response.data) {
-      const result = response.data;
-      keywordsByCategory.value = {};
+    const result = response.data || {};
 
-      for (const categoryId in result) {
-        const categoryName = mapCategoryIdToName(categoryId);
-        keywordsByCategory.value[categoryName] = result[categoryId].map(
-          (item, index) => ({
-            rank: index + 1,
-            name: item.keyword,
-            category: categoryName,
-          })
-        );
-      }
+    const mapped = {};
+    for (const id in result) {
+      const categoryName = categoryMap[id] || id;
+      mapped[categoryName] = result[id];
     }
+    allKeywords.value = mapped;
   } catch (error) {
     console.error("❌ 데이터 불러오기 실패:", error);
   } finally {
@@ -111,40 +123,19 @@ const fetchKeywords = async () => {
 
 onMounted(fetchKeywords);
 
-// ✅ 카테고리 또는 기간이 바뀌면 다시 fetch
-watch(selectedPeriod, async (newPeriod) => {
+watch([selectedPeriod], async () => {
   router.replace({
     query: {
       ...route.query,
       category: selectedCategory.value,
-      period: newPeriod,
+      period: selectedPeriod.value,
     },
   });
   await fetchKeywords();
-  await nextTick(); // ✅ 데이터 갱신 후 DOM 업데이트 기다리기
-  if ("scrollRestoration" in history) {
-    window.scrollTo({
-      top: history.state?.scroll?.top || 0,
-      left: 0,
-      behavior: "auto",
-    });
-  }
 });
 
 const filteredKeywords = computed(() => {
-  return keywordsByCategory.value[selectedCategory.value]?.slice(0, 50) || [];
-});
-
-onMounted(async () => {
-  await fetchKeywords();
-  await nextTick();
-  if ("scrollRestoration" in history) {
-    window.scrollTo({
-      top: history.state?.scroll?.top || 0,
-      left: 0,
-      behavior: "auto",
-    });
-  }
+  return allKeywords.value[selectedCategory.value] || [];
 });
 </script>
 
@@ -152,56 +143,62 @@ onMounted(async () => {
 .centered-content {
   text-align: center;
   margin-top: 60px;
+  padding: 20px;
+}
+
+.title {
+  color: #e60023;
+  font-size: 28px;
+  margin-bottom: 30px;
 }
 
 .filter-container {
-  margin: 30px auto;
-  text-align: center;
+  margin-bottom: 20px;
 }
 
 .filter-container select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='black' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E")
-    no-repeat right 10px center;
-  background-color: white;
-  background-size: 10px 6px;
-  padding: 10px 30px 10px 10px;
+  padding: 8px 12px;
   font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-right: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
 .loading {
-  text-align: center;
   font-size: 18px;
   color: gray;
   margin-top: 20px;
 }
 
-.hashtags {
-  display: flex;
-  justify-content: center;
+.table-wrapper {
+  overflow-x: auto;
 }
 
 table {
-  width: 80%;
-  margin: auto;
-  border-collapse: collapse;
+  width: 70%;
+  margin: 0 auto;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 16px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 th,
 td {
-  padding: 10px;
-  border: 1px solid #ddd;
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
 }
 
 th {
-  background-color: #ff0000;
+  background-color: #e60023;
   color: white;
+  font-weight: 600;
+}
+
+tr:hover {
+  background-color: #f9f9f9;
 }
 </style>
