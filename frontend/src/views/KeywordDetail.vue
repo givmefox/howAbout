@@ -54,6 +54,9 @@
                 )
               }}
             </div>
+            <div>
+              등급: <strong>{{ keywordDetail.preference_grade }}</strong>
+            </div>
             <div class="label">조회수 대비 좋아요 (선호도)</div>
           </div>
           <div class="metric-card">
@@ -68,6 +71,9 @@
                   keywordDetail.view_count
                 )
               }}
+            </div>
+            <div>
+              등급: <strong>{{ keywordDetail.engagement_grade }}</strong>
             </div>
             <div class="label">조회수 대비 댓글 수 (참여도)</div>
           </div>
@@ -86,32 +92,6 @@
             </div>
             <div class="label">구독자 수 대비 조회수 (성장 가능성)</div>
           </div>
-          <div class="metric-card">
-            <div class="icon">🔍</div>
-            <div class="value">
-              {{ displayNumber(keywordDetail.view_count) }}
-            </div>
-            <div class="percentage">
-              {{
-                displayPercent(
-                  keywordDetail.view_count,
-                  keywordDetail.search_volume
-                )
-              }}
-            </div>
-            <div class="label">검색량 대비 조회수 (유튜브 관심도)</div>
-          </div>
-        </div>
-
-        <!-- ✅ 등급 요약 -->
-        <div class="grade-summary">
-          <h3>📈 키워드 등급 평가</h3>
-          <p>
-            선호도 등급: <strong>{{ keywordDetail.preference_grade }}</strong>
-          </p>
-          <p>
-            참여도 등급: <strong>{{ keywordDetail.engagement_grade }}</strong>
-          </p>
         </div>
       </div>
 
