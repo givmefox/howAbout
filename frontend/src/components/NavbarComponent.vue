@@ -211,6 +211,7 @@ const goToRegister = () => {
 
 .dropdown-menu a:hover {
   background: #f0f0f0;
+  transition: 0.2s;
 }
 
 .slide-fade-enter-active,
@@ -244,6 +245,12 @@ const goToRegister = () => {
 .logout-btn {
   background-color: #444;
   color: white;
+}
+
+.login-btn:hover {
+  background-color: #fff3f3;
+  color: #c40000;
+  transition: 0.2s;
 }
 
 .modal-overlay {
