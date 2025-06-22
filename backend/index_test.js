@@ -13,6 +13,9 @@ const mongoRoutes = require("./routes/mongoRoute"); // MongoDB 라우트
 const authRoutes = require("./routes/authRoutes.js");
 const fs = require("fs");
 const rankingRoutes = require("./routes/rankingRoute");
+const axios = require('axios');
+const { MongoClient } = require("mongodb");
+
 
 const OpenAI = require("openai");
 
@@ -164,6 +167,8 @@ app.get("/api/keywords-popular-videos", (req, res) => {
 // });
 
 // 연관 키워드 수정
+
+//연관 키워드
 app.get("/api/related-keywords", (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
@@ -456,6 +461,77 @@ Output format:
     res.status(500).json({ error: "Failed to generate content." });
   }
 });
+
+// //검색어 자동완성
+
+// app.get("/api/yt-suggest", async (req, res) => {
+//   const q = req.query.q;
+//   if (!q) return res.json([]);
+
+//   const url = `https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=${encodeURIComponent(q)}`;
+//   try {
+//     const { data } = await axios.get(url);
+//     res.json(data[1]); // 추천어 배열만 전달
+//   } catch (err) {
+//     console.error("❌ yt-suggest 서버 내부 에러:", err); // ← 이 줄이 핵심!
+
+//     res.status(500).json([]);
+//   }
+// });
+
+// 검색어 자동완성_DB
+// /api/suggest-db
+router.get("/suggest-db", async (req, res) => {
+  const q = req.query.q?.trim();
+  if (!q) return res.json([]);
+
+  const db = await MongoClient.connect("mongodb://localhost:27017/");
+  const keywords = await db
+    .db("search_keyword")
+    .collection("search_keyword")
+    .find({ keyword: { $regex: `^${q}`, $options: "i" } }) // 대소문자 무시
+    .limit(10)
+    .toArray();
+
+  res.json(keywords.map(k => k.keyword));
+});
+
+//검색어 resolve 
+app.get("/resolve-keyword", async (req, res) => {
+  const { query } = req.query;
+  if (!query) return res.json({ exists: false, alternatives: [] });
+
+  const client = await MongoClient.connect("mongodb://localhost:27017/");
+  const db = client.db("keyword");
+  const collection = db.collection("keyword");
+
+  // 1. 복합 키워드가 그대로 combined_score 안에 있는지 확인
+  const exact = await collection.findOne({
+    [`combined_score.${query}`]: { $exists: true }
+  });
+
+  if (exact) {
+    client.close();
+    return res.json({ exists: true, alternatives: [] });
+  }
+
+  // 2. 공백 기준 분해
+  const parts = query.split(" ");
+  const foundParts = [];
+
+  for (const word of parts) {
+    const result = await collection.findOne({
+      [`combined_score.${word}`]: { $exists: true }
+    });
+    if (result) foundParts.push(word);
+  }
+
+  client.close();
+  return res.json({ exists: false, alternatives: foundParts });
+});
+
+
+
 
 // 서버 실행
 app.listen(port, "0.0.0.0", () => {

@@ -13,10 +13,10 @@ def related_keyword_video_level(
     mongo_uri: str = "mongodb://localhost:27017/",
     db: str = "tokenize",
     coll: str = "tokenize",
-    n: int = 6,
-    min_co: int = 3,
-    top_n: int = 30,
-    days: int = 7,                       # ✨ 최근 N일만 분석 (default 7)
+    n: int = 5,
+    min_co: int = 2,
+    top_n: int = 20,
+    days: int = 30,                       # ✨ 최근 N일만 분석 (default 7)
 ) -> List[str]:
     client = MongoClient(mongo_uri)
     collection = client[db][coll]

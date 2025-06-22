@@ -38,6 +38,31 @@
       </div>
     </div>
   </div>
+
+  <!-- 키워드 추천 모달 -->
+  <div v-if="showModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>‘{{ searchQuery }}’에 대한 결과가 없습니다</h3>
+
+      <div v-if="altKeywords.length">
+        <p>대신 이런 키워드는 어떤가요?</p>
+        <ul class="alt-list">
+          <li
+            v-for="(alt, i) in altKeywords"
+            :key="i"
+            @click="selectAlternative(alt)"
+          >
+            🔍 {{ alt }}
+          </li>
+        </ul>
+      </div>
+      <div v-else>
+        <p>관련 키워드도 없습니다.</p>
+      </div>
+
+      <button @click="showModal = false">닫기</button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -51,9 +76,17 @@ const suggestions = ref([]);
 const selectedIndex = ref(-1); // 🔥 키보드 선택용
 const router = useRouter();
 const searchBarRef = ref(null);
-const apiUrl = process.env.VUE_APP_API_URL;
+//const apiUrl = process.env.VUE_APP_API_URL;
 const recentKeywords = ref([]);
+const showModal = ref(false);
+const altKeywords = ref([]);
 
+//대안 검색어
+const selectAlternative = (keyword) => {
+  searchQuery.value = keyword;
+  showModal.value = false;
+  emitSearch();
+};
 // mount 시 로컬에서 불러오기
 onMounted(() => {
   const stored = sessionStorage.getItem("recentKeywords"); // ✅ 변경
@@ -97,7 +130,36 @@ const handleCompositionEnd = (e) => {
   getSuggestions(e.target.value); // 즉시 실행
 };
 
-// 🔹 자동완성 함수
+// // 🔹 자동완성 함수
+// const getSuggestions = async (value) => {
+//   const query = value ?? searchQuery.value;
+//   if (!query) {
+//     suggestions.value = [];
+//     return;
+//   }
+
+//   const words = query.split(" ");
+
+//   try {
+//     if (words.length === 1) {
+//       const res = await axios.get(`${apiUrl}/api/keyword-suggest`, {
+//         params: { q: words[0] },
+//       });
+//       suggestions.value = res.data.slice(0, 14);
+//     } else if (words.length >= 2) {
+//       const res = await axios.get(`${apiUrl}/api/mongo-related-suggest`, {
+//         params: { q: words[0] },
+//       });
+//       const mapped = res.data.map((r) => `${words[0]} > ${r.split(" > ")[1]}`);
+//       suggestions.value = mapped.slice(0, 14);
+//     }
+//     selectedIndex.value = -1;
+//   } catch (e) {
+//     console.error("❌ 자동완성 에러:", e);
+//     suggestions.value = [];
+//   }
+// };
+
 const getSuggestions = async (value) => {
   const query = value ?? searchQuery.value;
   if (!query) {
@@ -105,27 +167,16 @@ const getSuggestions = async (value) => {
     return;
   }
 
-  const words = query.split(" ");
-
   try {
-    if (words.length === 1) {
-      const res = await axios.get(`${apiUrl}/api/keyword-suggest`, {
-        params: { q: words[0] },
-      });
-      suggestions.value = res.data.slice(0, 14);
-    } else if (words.length >= 2) {
-      const res = await axios.get(`${apiUrl}/api/mongo-related-suggest`, {
-        params: { q: words[0] },
-      });
-      const mapped = res.data.map((r) => `${words[0]} > ${r.split(" > ")[1]}`);
-      suggestions.value = mapped.slice(0, 14);
-    }
+    const res = await axios.get('/api/suggest-db', { params: { q: query } });
+    suggestions.value = res.data.slice(0, 14);
     selectedIndex.value = -1;
   } catch (e) {
     console.error("❌ 자동완성 에러:", e);
     suggestions.value = [];
   }
 };
+
 
 const fetchSuggestions = debounce(getSuggestions, 200);
 
@@ -138,12 +189,31 @@ const selectSuggestion = (s) => {
 };
 
 // emitSearch 함수 내에 저장 호출
-const emitSearch = () => {
+const emitSearch = async () => {
   const keyword = searchQuery.value.trim();
-  if (keyword) {
-    saveRecentKeyword(keyword); // ✅ 최근검색어 저장
-    router.push(`/keyword/${encodeURIComponent(keyword)}`);
+  if (!keyword) return;
+
+  try {
+    const res = await axios.get("/api/resolve-keyword", {
+      params: { query: keyword }
+    });
+
+    const { exists, alternatives } = res.data;
+
+    if (exists) {
+      saveRecentKeyword(keyword);
+      router.push(`/keyword/${encodeURIComponent(keyword)}`);
+    } else if (alternatives.length > 0) {
+      altKeywords.value = alternatives;
+      showModal.value = true;
+    } else {
+      altKeywords.value = []; // 빈 경우도 모달로
+      showModal.value = true;
+    }
+
     suggestions.value = [];
+  } catch (e) {
+    console.error("❌ 검색 오류:", e);
   }
 };
 
@@ -332,5 +402,40 @@ onUnmounted(() => {
   .search-bar button {
     width: 90%;
   }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+.alt-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+.alt-list li {
+  cursor: pointer;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+.alt-list li:hover {
+  background-color: #f0f0f0;
+  font-weight: bold;
 }
 </style>
