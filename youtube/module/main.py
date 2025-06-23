@@ -15,9 +15,9 @@ CATEGORIES = {
 def main():
     
     # 1. 동영상 데이터 가져오고 저장하기기
-    store_trending_videos_with_comments(db_name="raw_video_data", collection_name="raw_video_data")
+    #store_trending_videos_with_comments(db_name="raw_video_data", collection_name="raw_video_data")
     # 2. 데이터 가져오기
-    data = get_data_by_date_and_category(kst_date_str= "2025-06-24", db_name= "raw_video_data",collection_name="raw_video_data")
+    data = get_data_by_date_and_category(kst_date_str= "2025-06-23", db_name= "raw_video_data",collection_name="raw_video_data")
     # 3. kiwi 학습하기
     kiwi_objects = make_kiwi(data)
     # 4.tokenize하기
